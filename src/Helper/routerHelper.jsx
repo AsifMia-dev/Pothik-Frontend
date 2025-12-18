@@ -1,19 +1,12 @@
 import React from 'react'
-import NavBar from '../components/Layout-componets/NavBar.jsx'
-import PrivateRoute from '../routes/PrivateRoute'
-
+import Homepage from '../pages/Homepage';
+import PrivateRoute from '../routes/PrivateRoute';
 
 export const allRoutes = [
     {
         path : "/",
-        element : NavBar,
+        element : Homepage,
         isPrivate : false
-    },
-    {
-        path : "/navbar",
-        element : NavBar,
-        isPrivate : true,
-        role: "user"
     }
 ]
 

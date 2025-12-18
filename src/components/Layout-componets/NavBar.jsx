@@ -21,12 +21,7 @@ const NavBar = () => {
         <div class="flex gap-2">
        <Button
           label="Log In"
-          className="
-            flex min-w-[84px] items-center justify-center cursor-pointer
-            overflow-hidden rounded-lg h-10 px-4 
-          bg-white text-dark-slate dark:text-off-white text-sm font-bold
-          hover:bg-green-800/10 transition-colors
-          "
+          className="flex min-w-[84px] items-center justify-center cursor-pointer overflow-hidden rounded-lg h-10 px-4 bg-white text-dark-slate dark:text-off-white text-sm font-boldhover:bg-green-800/10 transition-colors"
         />
         <Button
             label="Sign Up"
@@ -42,4 +37,4 @@ const NavBar = () => {
   )
 }
 
-export default NavBar
+export default NavBar;
