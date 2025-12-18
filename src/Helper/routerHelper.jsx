@@ -1,5 +1,7 @@
 import React from 'react'
 import NavBar from '../components/Layout-componets/NavBar.jsx'
+import PrivateRoute from '../routes/PrivateRoute'
+
 
 export const allRoutes = [
     {
@@ -17,13 +19,13 @@ export const allRoutes = [
 
 export const renderRouterElement = (route) => {
   const Component = route.element;
-//   if (route.isPrivate){
-//     return (
-//         <PrivateRoute role={route.role}>
-//             <Component />
-//         </PrivateRoute>
-//     )
-//   }
+  if (route.isPrivate){
+    return (
+        <PrivateRoute role={route.role}>
+            <Component />
+        </PrivateRoute>
+    )
+  }
   return <Component />;
 }
 
