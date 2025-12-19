@@ -2,9 +2,11 @@ import React from 'react'
 
 const Homepage = () => {
     return (
-        <div>
+        <Layout>
+            <div>
             <h1>Welcome to POTHIK</h1>
-        </div>
+            </div>
+        </Layout>
     )
 }
 export default Homepage;
