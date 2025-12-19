@@ -17,13 +17,13 @@ export const allRoutes = [
 
 export const renderRouterElement = (route) => {
   const Component = route.element;
-//   if (route.isPrivate){
-//     return (
-//         <PrivateRoute role={route.role}>
-//             <Component />
-//         </PrivateRoute>
-//     )
-//   }
+  if (route.isPrivate){
+    return (
+        <PrivateRoute role={route.role}>
+            <Component />
+        </PrivateRoute>
+    )
+  }
   return <Component />;
 }
 
