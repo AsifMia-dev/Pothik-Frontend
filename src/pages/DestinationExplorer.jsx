@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import Card from "./Components/Card";
+import Card from "../components/Card";
+import Layout from "../components/Layout";
 
 const DestinationExplorer = () => {
   const [search, setSearch] = useState("");
@@ -38,6 +39,7 @@ const DestinationExplorer = () => {
   );
 
   return (
+    <Layout>
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
@@ -90,6 +92,7 @@ const DestinationExplorer = () => {
         </section>
       </div>
     </div>
+    </Layout>
   );
 };
 

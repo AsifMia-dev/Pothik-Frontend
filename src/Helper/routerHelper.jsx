@@ -1,5 +1,6 @@
 import React from 'react'
 import Homepage from '../pages/Homepage';
+import DestinationExplorer from '../pages/DestinationExplorer.jsx';
 import PrivateRoute from '../routes/PrivateRoute';
 
 export const allRoutes = [
@@ -25,5 +26,5 @@ export const renderRouterElement = (route) => {
     )
   }
   return <Component />;
-};
+}
 
