@@ -12,8 +12,8 @@ export const allRoutes = [
       path: "/destinations",
       element: DestinationExplorer,
       isPrivate: false,
-    },
-]
+    }
+];
 
 export const renderRouterElement = (route) => {
   const Component = route.element;
@@ -25,5 +25,5 @@ export const renderRouterElement = (route) => {
     )
   }
   return <Component />;
-}
+};
 
