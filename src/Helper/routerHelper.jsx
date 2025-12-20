@@ -7,7 +7,12 @@ export const allRoutes = [
         path : "/",
         element : Homepage,
         isPrivate : false
-    }
+    },
+    {
+      path: "/destinations",
+      element: DestinationExplorer,
+      isPrivate: false,
+    },
 ]
 
 export const renderRouterElement = (route) => {
