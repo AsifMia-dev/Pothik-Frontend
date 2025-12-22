@@ -3,7 +3,7 @@ import React from "react";
 const FALLBACK_IMAGE =
   "https://via.placeholder.com/600x400?text=No+Image";
 
-const Card = ({
+const DestinationCard = ({
   name = "Unknown Destination",
   description = "No description available.",
   image,
@@ -45,4 +45,4 @@ const Card = ({
   );
 };
 
-export default Card;
+export default DestinationCard;
