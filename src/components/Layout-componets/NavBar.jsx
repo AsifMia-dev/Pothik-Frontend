@@ -8,7 +8,7 @@ const NavBar = () => {
 
       {/* Logo */}
       <div className="flex items-center gap-4 text-deep-teal dark:text-off-white">
-        <div className="size-6 text-deep-teal dark:text-primary">
+        <div className="size-6 text-[#034D41] dark:text-primary">
           <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
             <path
               d="M4 4H17.3334V17.3334H30.6666V30.6666H44V44H4V4Z"
@@ -48,15 +48,15 @@ const NavBar = () => {
 
       {/* Auth Buttons */}
       <div className="flex gap-2">
-        <Button
-          label="Log In"
-          className="flex min-w-[84px] items-center justify-center cursor-pointer overflow-hidden rounded-lg h-10 px-4 bg-white text-dark-slate dark:text-off-white text-sm font-bold hover:bg-green-800/10 transition-colors"
-        />
-
-        <Button
-          label="Sign Up"
-          className="flex min-w-[84px] items-center justify-center cursor-pointer overflow-hidden rounded-lg h-10 px-4 bg-green-800 text-white text-sm font-bold hover:bg-green-700 transition-colors"
-        />
+        <Link to="/login">
+          <Button
+            label="Login"
+            className="p-button-text text-sm font-medium text-deep-teal  hover:text-primary  transition-colors"
+          />
+        </Link>
+        <Link to="/signup">
+          <button className="bg-[#034D41] text-sm text-white font-medium text-deep-teal align-middle text-center mt-2 px-3 py-1 rounded-lg hover:cursor-pointer">Sign Up</button>
+        </Link>
       </div>
     </header>
   );
