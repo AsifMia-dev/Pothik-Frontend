@@ -21,6 +21,7 @@ const DestinationExplorer = () => {
         setLoading(false);
       }
     };
+
     fetchDestinations();
   }, []);
 
@@ -54,14 +55,19 @@ const DestinationExplorer = () => {
 
           {/* Loading / Empty / Cards */}
           {loading ? (
-            <p className="text-center text-slate-500 mt-8">Loading destinations...</p>
+            <p className="text-center text-slate-500 mt-8">
+              Loading destinations...
+            </p>
           ) : filteredDestinations.length === 0 ? (
-            <p className="text-center text-slate-500 mt-8">No destinations found</p>
+            <p className="text-center text-slate-500 mt-8">
+              No destinations found
+            </p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6 justify-center">
               {filteredDestinations.map((destination) => (
                 <Card
                   key={destination.destination_id}
+                  destinationId={destination.destination_id} // 🔥 IMPORTANT
                   name={destination.name}
                   description={destination.description}
                   image={

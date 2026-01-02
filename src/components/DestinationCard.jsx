@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const FALLBACK_IMAGE =
   "https://via.placeholder.com/600x400?text=No+Image";
@@ -9,6 +10,16 @@ const DestinationCard = ({
   image,
   spots = [],
 }) => {
+  const navigate = useNavigate();
+
+  const handleViewSpots = () => {
+    navigate(`/destination/${destinationId}`, {
+      state: {
+        destinationName: name,
+      },
+    });
+  };
+
   return (
     <div className="group flex flex-col overflow-hidden rounded-xl bg-white dark:bg-card-dark shadow-md transition-all hover:shadow-lg hover:-translate-y-1 border border-border-light dark:border-border-dark">
 
