@@ -1,19 +1,129 @@
 import React from 'react'
-import Homepage from '../pages/Homepage';
-import DestinationExplorer from '../pages/DestinationExplorer.jsx';
-import PrivateRoute from '../routes/PrivateRoute';
 
+/* ===================== PUBLIC PAGES ===================== */
+import Homepage from "../pages/Homepage";
+import DestinationExplorer from "../pages/DestinationExplorer";
+import SpotDetails from "../pages/SpotDetails";
+import Aboutpage from "../pages/Aboutpage";
+import Blog from "../pages/Blog";
+import BlogDetails from "../pages/BlogDetails";
+import Contact from "../pages/Contact";
+import Login from "../pages/Login";
+import Register from "../pages/Register";
+import Terms from "../pages/Terms";
+
+/* ===================== USER PAGES ===================== */
+import DashboardUser from "../pages/user/Profile";
+import MyBookings from "../pages/user/BookingsHistory";
+import CreatePackage from "../pages/user/CreatePackage";
+import LoyaltyPoints from "../pages/user/LoyaltyPoints";
+import PackageDetails from "../pages/user/PackageDetails";
+
+/* ===================== OWNER PAGES ===================== */
+import OwnerDashboard from "../pages/owner/Dashboard";
+
+/* ===================== ADMIN PAGES ===================== */
+import AdminDashboard from "../pages/admin/Dashboard";
+import BlogManagement from "../pages/admin/BlogManagement";
+import BookingManagement from "../pages/admin/BookingManagement";
+import DestinationManagement from "../pages/admin/DestinationManagement";
+import PackageManagement from "../pages/admin/PackageManagement";
+import UserManagement from "../pages/admin/UserManagement";
+
+/* ===================== ROUTE GUARD ===================== */
+import PrivateRoute from "../routes/PrivateRoute";
+
+/* ===================== ALL ROUTES ===================== */
 export const allRoutes = [
-    {
-        path : "/",
-        element : Homepage,
-        isPrivate : false
-    },
-    {
-      path: "/destinations",
-      element: DestinationExplorer,
-      isPrivate: false,
-    }
+  /* -------- Public -------- */
+  { path: "/", element: Homepage, isPrivate: false },
+  { path: "/destinations", element: DestinationExplorer, isPrivate: false },
+  { path: "/destination/:id", element: SpotDetails, isPrivate: false },
+  { path: "/about", element: Aboutpage, isPrivate: false },
+  { path: "/blog", element: Blog, isPrivate: false },
+  { path: "/blog/:id", element: BlogDetails, isPrivate: false },
+  { path: "/contact", element: Contact, isPrivate: false },
+  { path: "/login", element: Login, isPrivate: false },
+  { path: "/register", element: Register, isPrivate: false },
+  { path: "/terms", element: Terms, isPrivate: false },
+
+  /* -------- User -------- */
+  {
+    path: "/user/profile",
+    element: DashboardUser,
+    isPrivate: true,
+    role: "user",
+  },
+  {
+    path: "/user/bookings",
+    element: MyBookings,
+    isPrivate: true,
+    role: "user",
+  },
+  {
+    path: "/user/create-package",
+    element: CreatePackage,
+    isPrivate: true,
+    role: "user",
+  },
+  {
+    path: "/user/loyalty-points",
+    element: LoyaltyPoints,
+    isPrivate: true,
+    role: "user",
+  },
+  {
+    path: "/user/package/:id",
+    element: PackageDetails,
+    isPrivate: true,
+    role: "user",
+  },
+
+  /* -------- Owner -------- */
+  {
+    path: "/owner/dashboard",
+    element: OwnerDashboard,
+    isPrivate: true,
+    role: "owner",
+  },
+
+  /* -------- Admin -------- */
+  {
+    path: "/admin/dashboard",
+    element: AdminDashboard,
+    isPrivate: true,
+    role: "admin",
+  },
+  {
+    path: "/admin/blogs",
+    element: BlogManagement,
+    isPrivate: true,
+    role: "admin",
+  },
+  {
+    path: "/admin/bookings",
+    element: BookingManagement,
+    isPrivate: true,
+    role: "admin",
+  },
+  {
+    path: "/admin/destinations",
+    element: DestinationManagement,
+    isPrivate: true,
+    role: "admin",
+  },
+  {
+    path: "/admin/packages",
+    element: PackageManagement,
+    isPrivate: true,
+    role: "admin",
+  },
+  {
+    path: "/admin/users",
+    element: UserManagement,
+    isPrivate: true,
+    role: "admin",
+  },
 ];
 
 export const renderRouterElement = (route) => {
