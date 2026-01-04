@@ -145,7 +145,7 @@ const Register = () => {
                 onChange={handleChange}
                 className="appearance-none relative block w-full px-3 py-1.5 border border-gray-300 text-gray-900 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
               >
-                <option value="customer">Customer</option>
+                <option value="customer">User</option>
                 <option value="owner">Package Owner</option>
               </select>
             </div>
