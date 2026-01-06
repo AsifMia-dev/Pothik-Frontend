@@ -1,5 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { signInWithPopup } from 'firebase/auth';
+import { auth, googleProvider } from '../firebase.config';
 import API from '../Helper/baseUrl.helper';
 import { AuthContext } from '../context/AuthContext';
 
@@ -74,9 +76,45 @@ const Register = () => {
     }
   };
 
-  const handleGoogleSignup = () => {
-    // Implement Google OAuth signup
-    window.location.href = `${import.meta.env.VITE_POTHIK_BACKEND_URL}/auth/google`;
+  const handleGoogleSignup = async () => {
+    setLoading(true);
+    setError('');
+
+    try {
+      // Sign in with Google popup
+      const result = await signInWithPopup(auth, googleProvider);
+
+      // Get the Firebase ID token
+      const idToken = await result.user.getIdToken();
+
+      // Send token to backend for verification (will create user if doesn't exist)
+      const response = await API.post('/auth/google', { idToken });
+
+      if (response.data.success) {
+        const userData = response.data.data.user;
+        const token = response.data.data.token;
+
+        // Store token in localStorage
+        localStorage.setItem('token', token);
+
+        // Store user in context
+        login(userData);
+
+        // Redirect to home page
+        navigate('/');
+      }
+    } catch (err) {
+      console.error('Google signup error:', err);
+      if (err.code === 'auth/popup-closed-by-user') {
+        setError('Sign-up cancelled. Please try again.');
+      } else if (err.code === 'auth/network-request-failed') {
+        setError('Network error. Please check your connection.');
+      } else {
+        setError(err.response?.data?.error || 'Google sign-up failed. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
