@@ -10,6 +10,7 @@ import BlogDetails from "../pages/BlogDetails";
 import Contact from "../pages/Contact";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
+import ForgotPassword from "../pages/ForgotPassword";
 import Terms from "../pages/Terms";
 
 /* ===================== USER PAGES ===================== */
@@ -45,6 +46,7 @@ export const allRoutes = [
   { path: "/contact", element: Contact, isPrivate: false },
   { path: "/login", element: Login, isPrivate: false },
   { path: "/register", element: Register, isPrivate: false },
+  { path: "/forgot-password", element: ForgotPassword, isPrivate: false },
   { path: "/terms", element: Terms, isPrivate: false },
 
   /* -------- User -------- */
@@ -128,11 +130,11 @@ export const allRoutes = [
 
 export const renderRouterElement = (route) => {
   const Component = route.element;
-  if (route.isPrivate){
+  if (route.isPrivate) {
     return (
-        <PrivateRoute role={route.role}>
-            <Component />
-        </PrivateRoute>
+      <PrivateRoute role={route.role}>
+        <Component />
+      </PrivateRoute>
     )
   }
   return <Component />;
