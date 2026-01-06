@@ -1,8 +1,18 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "primereact/button";
+import { AuthContext } from "../../context/AuthContext";
 
 const NavBar = () => {
+  const { user, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    localStorage.removeItem('token');
+    navigate('/');
+  };
+
   return (
     <header className="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-light-gray/50 bg-off-white/80 px-6 sm:px-10 lg:px-20 py-3 backdrop-blur-sm dark:bg-background-dark/80 dark:border-gray-700/50">
 
@@ -47,16 +57,34 @@ const NavBar = () => {
       </nav>
 
       {/* Auth Buttons */}
-      <div className="flex gap-2">
-        <Link to="/login">
-          <Button
-            label="Login"
-            className="p-button-text text-sm font-medium text-deep-teal  hover:text-primary  transition-colors"
-          />
-        </Link>
-        <Link to="/signup">
-          <button className="bg-[#034D41] text-sm text-white font-medium text-deep-teal align-middle text-center mt-2 px-3 py-1 rounded-lg hover:cursor-pointer">Sign Up</button>
-        </Link>
+      <div className="flex gap-2 items-center">
+        {user ? (
+          <>
+            <span className="text-sm font-medium text-deep-teal dark:text-off-white mr-2">
+              Welcome, {user.full_name}
+            </span>
+            <button
+              onClick={handleLogout}
+              className="bg-red-600 text-sm text-white font-medium px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+            >
+              Logout
+            </button>
+          </>
+        ) : (
+          <>
+            <Link to="/login">
+              <Button
+                label="Login"
+                className="p-button-text text-sm font-medium text-deep-teal hover:text-primary transition-colors"
+              />
+            </Link>
+            <Link to="/register">
+              <button className="bg-[#034D41] text-sm text-white font-medium px-4 py-2 rounded-lg hover:bg-[#023830] transition-colors">
+                Sign Up
+              </button>
+            </Link>
+          </>
+        )}
       </div>
     </header>
   );

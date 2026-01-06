@@ -29,23 +29,27 @@ const Login = () => {
     setError('');
 
     try {
+      console.log('Login attempt with:', { email: formData.email });
       const response = await API.post('/auth/login', formData);
+      console.log('Login response:', response.data);
 
       if (response.data.success) {
-        login(response.data.user);
+        // Backend returns user inside data object
+        const userData = response.data.data.user;
+        const token = response.data.data.token;
 
-        // Redirect based on user role
-        const role = response.data.user.role;
-        if (role === 'admin') {
-          navigate('/admin/dashboard');
-        } else if (role === 'owner') {
-          navigate('/owner/dashboard');
-        } else {
-          navigate('/user/profile');
-        }
+        // Store token in localStorage
+        localStorage.setItem('token', token);
+
+        // Store user in context
+        login(userData);
+
+        // Redirect to home page
+        navigate('/');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+      console.error('Login error:', err.response?.data || err.message);
+      setError(err.response?.data?.error || err.response?.data?.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }

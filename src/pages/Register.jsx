@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import API from '../Helper/baseUrl.helper';
+import { AuthContext } from '../context/AuthContext';
 
 const Register = () => {
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
   const [formData, setFormData] = useState({
     full_name: '',
@@ -45,14 +47,28 @@ const Register = () => {
     }
 
     try {
+      console.log('Registration attempt with:', { email: formData.email, full_name: formData.full_name });
       const { confirmPassword, ...registerData } = formData;
       const response = await API.post('/auth/register', registerData);
+      console.log('Registration response:', response.data);
 
       if (response.data.success) {
-        navigate('/login', { state: { message: 'Registration successful! Please login.' } });
+        // If backend returns user and token, login directly
+        if (response.data.data?.user && response.data.data?.token) {
+          const userData = response.data.data.user;
+          const token = response.data.data.token;
+
+          localStorage.setItem('token', token);
+          login(userData); // Login user automatically
+          navigate('/'); // Redirect to home
+        } else {
+          // Otherwise redirect to login page
+          navigate('/login', { state: { message: 'Registration successful! Please login.' } });
+        }
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      console.error('Registration error:', err.response?.data || err.message);
+      setError(err.response?.data?.error || err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
