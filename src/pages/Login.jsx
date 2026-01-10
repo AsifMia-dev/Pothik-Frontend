@@ -1,5 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { signInWithPopup } from 'firebase/auth';
+import { auth, googleProvider } from '../firebase.config';
 import { AuthContext } from '../context/AuthContext';
 import API from '../Helper/baseUrl.helper';
 
@@ -29,31 +31,71 @@ const Login = () => {
     setError('');
 
     try {
+      console.log('Login attempt with:', { email: formData.email });
       const response = await API.post('/auth/login', formData);
+      console.log('Login response:', response.data);
 
       if (response.data.success) {
-        login(response.data.user);
+        // Backend returns user inside data object
+        const userData = response.data.data.user;
+        const token = response.data.data.token;
 
-        // Redirect based on user role
-        const role = response.data.user.role;
-        if (role === 'admin') {
-          navigate('/admin/dashboard');
-        } else if (role === 'owner') {
-          navigate('/owner/dashboard');
-        } else {
-          navigate('/user/profile');
-        }
+        // Store token in localStorage
+        localStorage.setItem('token', token);
+
+        // Store user in context
+        login(userData);
+
+        // Redirect to home page
+        navigate('/');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+      console.error('Login error:', err.response?.data || err.message);
+      setError(err.response?.data?.error || err.response?.data?.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGoogleLogin = () => {
-    // Implement Google OAuth login
-    window.location.href = `${import.meta.env.VITE_POTHIK_BACKEND_URL}/auth/google`;
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    setError('');
+
+    try {
+      // Sign in with Google popup
+      const result = await signInWithPopup(auth, googleProvider);
+
+      // Get the Firebase ID token
+      const idToken = await result.user.getIdToken();
+
+      // Send token to backend for verification
+      const response = await API.post('/auth/google', { idToken });
+
+      if (response.data.success) {
+        const userData = response.data.data.user;
+        const token = response.data.data.token;
+
+        // Store token in localStorage
+        localStorage.setItem('token', token);
+
+        // Store user in context
+        login(userData);
+
+        // Redirect to home page
+        navigate('/');
+      }
+    } catch (err) {
+      console.error('Google login error:', err);
+      if (err.code === 'auth/popup-closed-by-user') {
+        setError('Sign-in cancelled. Please try again.');
+      } else if (err.code === 'auth/network-request-failed') {
+        setError('Network error. Please check your connection.');
+      } else {
+        setError(err.response?.data?.error || 'Google login failed. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -143,9 +185,9 @@ const Login = () => {
             </div>
 
             <div>
-              <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
+              <Link to="/forgot-password" className="font-medium text-indigo-600 hover:text-indigo-500">
                 Forgot password?
-              </a>
+              </Link>
             </div>
           </div>
 
