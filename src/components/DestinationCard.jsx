@@ -13,8 +13,8 @@ const DestinationCard = ({
 }) => {
   return (
     <Link
-      to={`/destination/${destinationId}`} // navigate to spot details
-      state={{ destinationName: name }}    // pass name in state
+      to={`/destinations/${destinationId}/spots`}
+      state={{ destinationName: name }}
       className="group flex flex-col overflow-hidden rounded-xl bg-white dark:bg-card-dark shadow-md transition-all hover:shadow-lg hover:-translate-y-1 border border-border-light dark:border-border-dark cursor-pointer"
     >
       {/* Image */}

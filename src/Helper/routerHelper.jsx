@@ -38,7 +38,7 @@ export const allRoutes = [
   /* -------- Public -------- */
   { path: "/", element: Homepage, isPrivate: false },
   { path: "/destinations", element: DestinationExplorer, isPrivate: false },
-  { path: "/destination/:id", element: SpotDetails, isPrivate: false },
+  { path: "/destinations/:destinationId/spots", element: SpotDetails, isPrivate: false },
   { path: "/about", element: Aboutpage, isPrivate: false },
   { path: "/blog", element: Blog, isPrivate: false },
   { path: "/blog/:id", element: BlogDetails, isPrivate: false },
