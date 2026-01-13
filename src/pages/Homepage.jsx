@@ -1,11 +1,12 @@
 import React from "react";
 import Layout from "../components/Layout";
+import Hero from "../components/HomeComponents/Hero";
 
 const Homepage = () => {
   return (
     <Layout>
       <div>
-        <h1>Welcome to POTHIK</h1>
+        <Hero />
       </div>
     </Layout>
   );
