@@ -4,103 +4,95 @@ import Layout from "../components/Layout";
 const Terms = () => {
   return (
     <Layout>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <section className="max-w-4xl mx-auto">
+      <main className="flex-1">
 
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">
+        {/* ================= Hero Section ================= */}
+        <section className="bg-card-light dark:bg-card-dark">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter">
               Terms & Conditions
             </h1>
-            <p className="mt-2 text-slate-500 dark:text-slate-400">
-              Please read these terms carefully before using Pothik
+            <p className="mt-4 text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+              Please read these terms carefully before using POTHIK. By accessing
+              our website or services, you agree to be bound by these terms.
             </p>
           </div>
+        </section>
 
-          {/* Content */}
-          <div className="bg-white dark:bg-card-dark shadow-sm rounded-xl p-6 space-y-6 text-slate-700 dark:text-slate-300 leading-relaxed">
+        {/* ================= Terms Content ================= */}
+        <section className="py-16">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
+            
+            <div className="space-y-8">
 
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                1. Introduction
-              </h2>
-              <p>
-                Welcome to <strong>Pothik</strong>, a travel agency platform designed
-                to help users explore destinations, plan trips, and make bookings.
-                By accessing or using this website, you agree to be bound by these
-                Terms & Conditions.
-              </p>
+              {/* Section 1 */}
+              <div>
+                <h2 className="text-2xl font-bold mb-4">1. Acceptance of Terms</h2>
+                <p className="text-slate-600 dark:text-slate-400">
+                  By using POTHIK services, you acknowledge that you have read, understood,
+                  and agree to these terms. If you do not agree, please refrain from using our services.
+                </p>
+              </div>
+
+              {/* Section 2 */}
+              <div>
+                <h2 className="text-2xl font-bold mb-4">2. Use of Services</h2>
+                <p className="text-slate-600 dark:text-slate-400">
+                  You agree to use POTHIK for lawful purposes only and not to engage in
+                  any activity that could harm the website, other users, or violate laws.
+                </p>
+              </div>
+
+              {/* Section 3 */}
+              <div>
+                <h2 className="text-2xl font-bold mb-4">3. Booking & Payments</h2>
+                <p className="text-slate-600 dark:text-slate-400">
+                  All bookings and payments made through POTHIK are subject to our policies.
+                  Ensure that all information provided is accurate to avoid booking issues.
+                </p>
+              </div>
+
+              {/* Section 4 */}
+              <div>
+                <h2 className="text-2xl font-bold mb-4">4. Cancellations & Refunds</h2>
+                <p className="text-slate-600 dark:text-slate-400">
+                  Cancellations and refunds are handled according to the package policies.
+                  Please review the terms for each package before booking.
+                </p>
+              </div>
+
+              {/* Section 5 */}
+              <div>
+                <h2 className="text-2xl font-bold mb-4">5. Intellectual Property</h2>
+                <p className="text-slate-600 dark:text-slate-400">
+                  All content, images, logos, and materials on POTHIK are the property of
+                  POTHIK or its licensors. Unauthorized use is prohibited.
+                </p>
+              </div>
+
+              {/* Section 6 */}
+              <div>
+                <h2 className="text-2xl font-bold mb-4">6. Limitation of Liability</h2>
+                <p className="text-slate-600 dark:text-slate-400">
+                  POTHIK is not liable for any direct or indirect damages arising from
+                  the use of our services. Travel risks are assumed by the user.
+                </p>
+              </div>
+
+              {/* Section 7 */}
+              <div>
+                <h2 className="text-2xl font-bold mb-4">7. Changes to Terms</h2>
+                <p className="text-slate-600 dark:text-slate-400">
+                  We may update these terms at any time. Continued use of our services
+                  constitutes acceptance of the updated terms.
+                </p>
+              </div>
+
             </div>
-
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                2. User Responsibilities
-              </h2>
-              <p>
-                Users are responsible for providing accurate information during
-                registration and booking. Any misuse of the platform or attempt
-                to provide false information may result in account suspension.
-              </p>
-            </div>
-
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                3. Bookings & Payments
-              </h2>
-              <p>
-                All bookings made through Pothik are subject to availability and
-                confirmation. Payments, if applicable, must be completed through
-                authorized payment channels. Pothik is not responsible for delays
-                caused by third-party service providers.
-              </p>
-            </div>
-
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                4. Cancellations & Refunds
-              </h2>
-              <p>
-                Cancellation and refund policies vary depending on the service
-                provider. Users are advised to review specific cancellation
-                terms before making a booking.
-              </p>
-            </div>
-
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                5. Limitation of Liability
-              </h2>
-              <p>
-                Pothik shall not be held liable for any direct or indirect damages
-                arising from the use of this platform, including but not limited
-                to service interruptions, data loss, or third-party failures.
-              </p>
-            </div>
-
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                6. Changes to Terms
-              </h2>
-              <p>
-                Pothik reserves the right to modify these Terms & Conditions at any
-                time. Continued use of the platform indicates acceptance of the
-                updated terms.
-              </p>
-            </div>
-
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                7. Contact Information
-              </h2>
-              <p>
-                If you have any questions regarding these terms, please contact
-                us through the official Pothik support channels.
-              </p>
-            </div>
-
           </div>
         </section>
-      </div>
+
+      </main>
     </Layout>
   );
 };

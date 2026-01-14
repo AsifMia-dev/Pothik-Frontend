@@ -12,6 +12,7 @@ import Login from "../pages/Login";
 import Register from "../pages/Register";
 import ForgotPassword from "../pages/ForgotPassword";
 import Terms from "../pages/Terms";
+import PrivacyPolicy from '../pages/PrivacyPolicy';
 
 /* ===================== USER PAGES ===================== */
 import DashboardUser from "../pages/user/Profile";
@@ -48,6 +49,7 @@ export const allRoutes = [
   { path: "/register", element: Register, isPrivate: false },
   { path: "/forgot-password", element: ForgotPassword, isPrivate: false },
   { path: "/terms", element: Terms, isPrivate: false },
+  { path: "/privacy", element: PrivacyPolicy, isPrivate: false},
 
   /* -------- User -------- */
   {
