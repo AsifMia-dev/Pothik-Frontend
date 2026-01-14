@@ -59,7 +59,14 @@ const NavBar = () => {
           to="/about"
           className="text-sm font-medium hover:text-deep-teal dark:hover:text-primary transition-colors"
         >
-          About
+          About Us
+        </Link>
+
+        <Link
+          to="/contact"
+          className="text-sm font-medium hover:text-deep-teal dark:hover:text-primary transition-colors"
+        >
+          Contact Us
         </Link>
       </nav>
 
