@@ -68,26 +68,26 @@ const AboutPage = () => {
             <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               <TeamCard
                 name="Md. Foysal Hossain Khan"
-                role="Founder & CEO"
-                text="The driving force behind POTHIK."
+                role="Fullstack Developer"
+                text="Builds scalable web applications with clean, efficient code."
                 img="https://lh3.googleusercontent.com/aida-public/AB6AXuCMxNBbMyc-VLn6j4qAaY2fG-baGVI8ieNBolBJ3HUR1SLXFPSO80Zc8FkgDS5YdYAVD1IiWsCj5BdJAaL9GzZjej_tOh-CgFG9gRGUrwQl8sqmHDjMb-3Xe-sZZFovujYcpDVfgKQ2-oFhf2EiQeEdhcOq5Ay2F-3IbfRWRDdQNu-cZoIUXTNXTOaj1d-DUXPRMJS0hjhfJ97-P0Iw0Szftjllw0yHv53UdSzC_m3NNnjEdP7jMkMmJueg95qUAT3QrNrkyT7gKuJm"
               />
               <TeamCard
                 name="Md Ibrahim Zihad"
-                role="Head of Operations"
-                text="Ensures seamless and safe journeys."
+                role="Fullstack Developer"
+                text="Builds scalable web applications with clean, efficient code."
                 img="https://lh3.googleusercontent.com/aida-public/AB6AXuC2iEl0og1ZoNsuAwZHVt3TSchJ8reaybS2b27R-4VmcG1HX0REx3nrAzKhAVAMT3lOA6SuZiALANukheO0ZzBuYMLrPnTQg_76mL9ahYDQcbUADB0EO1nfLNaUnH0bJrNkUSm7HCaF3ji6Hk5iIDhDviW8XLDl4fL2jozh9WChR29jHXaIrR2aUN0-WpvcvwC_CgnitD74PMAQw1pR-PusQ1_rdCAChBSaNrvwnnAVkB9B8d3cHGMXCoOdFOdEPbuQJE_bHfTyvRlc"
               />
               <TeamCard
                 name="Asif Mia"
-                role="Lead Travel Consultant"
-                text="Creates personalized travel itineraries."
+                role="Fullstack Developer"
+                text="Builds scalable web applications with clean, efficient code."
                 img="https://lh3.googleusercontent.com/aida-public/AB6AXuDVXKr4uMdA647tm6s3fTnrz8WMtwcBLOLeUq3LWafJiEQevYyY09BduDXxBxNdNpn_1Ns6OK8OYmfCC5fwzpSkWmZSH-frz1VMMtglT8j_-1EaydsovlC4FKCxzenRcbrvoCSw2WADau8D4ezAgnF9YHy3jNgkEHG9pnvBMQLIFWxfC1z4r5vk7nLePJwYgSzjCNCZVpE1ZVL5iRXdY701Q4HJ1sxHvSnaD7ez0hU0OdLR1TmXsKHq7IdsB3NvLZkqzMSdoFxfJGnF"
               />
               <TeamCard
                 name="Tarun Chandra Das"
-                role="Marketing Director"
-                text="Connects travelers with inspiring stories."
+                role="Fullstack Developer"
+                text="Builds scalable web applications with clean, efficient code."
                 img="https://lh3.googleusercontent.com/aida-public/AB6AXuCJLOQKERBPuHymf9WhhRGyZN4LkznQcwfrf6ZEarTnX5RrbHdYhANiwuOyyk759qYTCA58CivEZkpZp0wkIMpMp0T6CsitP2Sqwa_6hdQr3drnxRmUHSgNV3ECLGLVUfaTgBguCiJSZj-SWEJNgfwHBIaYWjdNIkRq-srxLg_iv1mlpL7lrh-UN8o8LuTRNdAUC5e39m-q0e2mZl7zTYz3Kkr5RXdnarPqJNtG865an2_I39zwgTLv0JEt_Ov-8IpNLc7OEmDiJ7Wf"
               />
             </div>
