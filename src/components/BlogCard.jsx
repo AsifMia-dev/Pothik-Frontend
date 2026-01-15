@@ -17,7 +17,7 @@ const BlogCard = ({ blog }) => {
   return (
     <div 
       onClick={handleCardClick}
-      className="flex flex-col gap-3 bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-sm transition-all hover:shadow-lg hover:-translate-y-1 cursor-pointer"
+      className="flex flex-col gap-3 bg-[#034D41] dark:bg-[#034D41] rounded-xl overflow-hidden shadow-sm transition-all hover:shadow-lg hover:-translate-y-1 cursor-pointer"
     >
       {/* Blog Image */}
       <div 
