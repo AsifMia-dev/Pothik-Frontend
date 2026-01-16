@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import BlogCard from "../components/BlogCard";
 import api from "../Helper/baseUrl.helper";
+import { Link } from "react-router-dom";
 import { ChevronLeftIcon } from 'primereact/icons/chevronleft';
 import { ChevronRightIcon } from 'primereact/icons/chevronright';
 
@@ -17,10 +18,11 @@ const Blog = () => {
       try {
         const res = await api.get("/blog/blogs");
         const blogsData = res.data?.blogs || [];
+        console.log("Fetched blogs:", blogsData);
         setBlogs(blogsData);
       } catch (error) {
-        console.error("Failed to fetch blogs:", error);
-        setBlogs([]);
+         console.error("Failed to fetch blogs:", error.response || error.message || error);
+       setBlogs([]);
       } finally {
         setLoading(false);
       }
@@ -155,7 +157,27 @@ const Blog = () => {
         <ChevronRightIcon className="w-5 h-5 text-slate-600 dark:text-slate-400" />
       </button>
 
-    </div>
+       </div>
+       <Link to="/user/blog-post">
+          <button
+            class="mx-auto flex items-center justify-center 
+                  w-2xl
+                  mt-12
+                  px-10 py-4 
+                  bg-violet-400/10
+                  text-lg font-semibold 
+                  text-black 
+                  bg-sunset-orange 
+                  rounded-xl 
+                  shadow-md 
+                  hover:bg-sunset-orange/90 
+                  hover:shadow-lg 
+                  transition-all duration-200 
+                  cursor-pointer"
+          >
+            Post Your Story
+          </button>
+       </Link>
       </div>
     </Layout>
   );
