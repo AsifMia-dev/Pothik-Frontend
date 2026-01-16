@@ -32,7 +32,7 @@ const AboutPage = () => {
 
                 <div className="mt-8 flex flex-wrap justify-center gap-4">
                   <Link to = "/contact">
-                  <button className="h-11 px-6 rounded-lg bg-slate-100 dark:bg-slate-700 font-bold hover:bg-slate-200 dark:hover:bg-slate-600">
+                  <button className="h-11 px-6 rounded-lg bg-[#034D41] dark:bg-[#034D41] font-bold text-white hover:bg-slate-200 dark:hover:bg-slate-600">
                     Contact Us
                   </button>
                   </Link>

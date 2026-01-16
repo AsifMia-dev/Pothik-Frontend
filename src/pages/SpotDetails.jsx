@@ -54,7 +54,7 @@ const SpotDetails = () => {
             {spots.map((spot) => (
               <div
                 key={spot.spot_id}
-                className="rounded-xl overflow-hidden shadow-md bg-white dark:bg-card-dark border border-border-light dark:border-border-dark"
+                className="rounded-xl overflow-hidden shadow-md bg-[#034D41] dark:bg-[#034D41] border border-border-light dark:border-border-dark"
               >
                 <div
                   className="aspect-video bg-cover bg-center"
