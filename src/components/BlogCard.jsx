@@ -1,12 +1,7 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const BlogCard = ({ blog }) => {
-  const navigate = useNavigate();
-
-  const handleCardClick = () => {
-    navigate(`/blog/${blog.slug || blog.blog_id}`);
-  };
 
   // Format date
   const formatDate = (dateString) => {
@@ -15,9 +10,9 @@ const BlogCard = ({ blog }) => {
   };
 
   return (
-    <div 
-      onClick={handleCardClick}
-      className="flex flex-col gap-3 bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-sm transition-all hover:shadow-lg hover:-translate-y-1 cursor-pointer"
+    <Link
+      to={`/blogs/${blog.blog_id}/blog`}
+      className="flex flex-col gap-3 bg-[#034D41] dark:bg-[#034D41] rounded-xl overflow-hidden shadow-sm transition-all hover:shadow-lg hover:-translate-y-1 cursor-pointer"
     >
       {/* Blog Image */}
       <div 
@@ -56,7 +51,7 @@ const BlogCard = ({ blog }) => {
           </p>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

@@ -2,20 +2,15 @@ import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import BlogCard from "../components/BlogCard";
 import api from "../Helper/baseUrl.helper";
+import { ChevronLeftIcon } from 'primereact/icons/chevronleft';
+import { ChevronRightIcon } from 'primereact/icons/chevronright';
 
 const Blog = () => {
-  const [activeCategory, setActiveCategory] = useState("All Posts");
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const categories = [
-    "All Posts",
-    "Destinations",
-    "Travel Tips",
-    "Culture & Food",
-    "Adventure Travel"
-  ];
 
   useEffect(() => {
     const fetchBlogs = async () => {
@@ -34,11 +29,13 @@ const Blog = () => {
     fetchBlogs();
   }, []);
 
-  const filteredBlogs = blogs.filter((blog) =>
-    activeCategory === "All Posts" 
-      ? true 
-      : blog.category === activeCategory
-  );
+  const filteredBlogs = blogs.filter((blog) => {
+    const search = searchTerm.toLowerCase();
+    return (
+      blog.title?.toLowerCase().includes(search) ||
+      blog.content?.toLowerCase().includes(search)
+    );
+  });
 
   return (
     <Layout>
@@ -63,23 +60,16 @@ const Blog = () => {
           </div>
         </div>
 
-        {/* Category Filter */}
-        <div className="py-8">
-          <div className="flex gap-2 md:gap-3 p-1 flex-wrap justify-center">
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setActiveCategory(category)}
-                className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full px-5 text-sm transition-colors ${
-                  activeCategory === category
-                    ? 'bg-primary text-white font-bold'
-                    : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 font-medium'
-                }`}
-              >
-                <span>{category}</span>
-              </button>
-            ))}
-          </div>
+        {/* Search Bar */}
+        <div className="py-8 flex justify-center">
+          <input
+            type="text"
+            placeholder="Search blogs..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full max-w-md px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none bg-white dark:bg-[#034D41] text-slate-800 dark:text-slate-200"
+
+          />
         </div>
 
         {/* Blog Grid */}
@@ -104,54 +94,68 @@ const Blog = () => {
 
         {/* Pagination */}
         <div className="flex items-center justify-center p-4 pt-12">
-          <button 
-            className="flex size-10 items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-            disabled={currentPage === 1}
-          >
-            <span className="material-symbols-outlined text-slate-600 dark:text-slate-400">
-              chevron_left
-            </span>
-          </button>
-          
-          <button className="text-sm font-bold flex size-10 items-center justify-center text-white rounded-full bg-primary">
-            {currentPage}
-          </button>
-          
-          <button 
-            className="text-sm font-medium flex size-10 items-center justify-center text-slate-600 dark:text-slate-300 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
-            onClick={() => setCurrentPage(2)}
-          >
-            2
-          </button>
-          
-          <button 
-            className="text-sm font-medium flex size-10 items-center justify-center text-slate-600 dark:text-slate-300 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
-            onClick={() => setCurrentPage(3)}
-          >
-            3
-          </button>
-          
-          <span className="text-sm font-medium flex size-10 items-center justify-center text-slate-500 dark:text-slate-400 rounded-full">
-            ...
-          </span>
-          
-          <button 
-            className="text-sm font-medium flex size-10 items-center justify-center text-slate-600 dark:text-slate-300 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
-            onClick={() => setCurrentPage(10)}
-          >
-            10
-          </button>
-          
-          <button 
-            className="flex size-10 items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
-            onClick={() => setCurrentPage(currentPage + 1)}
-          >
-            <span className="material-symbols-outlined text-slate-600 dark:text-slate-400">
-              chevron_right
-            </span>
-          </button>
-        </div>
+      
+      {/* LEFT BUTTON */}
+      <button
+        disabled={currentPage === 1}
+        onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+        className={`
+          flex size-10 items-center justify-center rounded-full transition-colors
+          ${currentPage === 1
+            ? "opacity-50 cursor-not-allowed"
+            : "hover:bg-slate-200 dark:hover:bg-slate-800"}
+        `}
+      >
+        <ChevronLeftIcon
+          className={`
+            w-5 h-5
+            ${currentPage === 1
+              ? "text-slate-400 dark:text-slate-600"
+              : "text-slate-600 dark:text-slate-400"}
+          `}
+        />
+      </button>
+
+      {/* CURRENT PAGE */}
+      <button className="text-sm font-bold flex size-10 items-center justify-center text-white rounded-full bg-primary">
+        {currentPage}
+      </button>
+
+      {/* STATIC EXAMPLE NUMBERS */}
+      <button
+        className="text-sm font-medium flex size-10 items-center justify-center text-slate-600 dark:text-slate-300 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+        onClick={() => setCurrentPage(2)}
+      >
+        2
+      </button>
+
+      <button
+        className="text-sm font-medium flex size-10 items-center justify-center text-slate-600 dark:text-slate-300 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+        onClick={() => setCurrentPage(3)}
+      >
+        3
+      </button>
+
+      <span className="text-sm font-medium flex size-10 items-center justify-center text-slate-500 dark:text-slate-400 rounded-full">
+        ...
+      </span>
+
+      <button
+        className="text-sm font-medium flex size-10 items-center justify-center text-slate-600 dark:text-slate-300 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+        onClick={() => setCurrentPage(10)}
+      >
+        10
+      </button>
+
+      {/* RIGHT BUTTON */}
+      <button
+        onClick={() => setCurrentPage(currentPage + 1)}
+        className="flex size-10 items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+      >
+        <ChevronRightIcon className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+      </button>
+
+    </div>
       </div>
     </Layout>
   );

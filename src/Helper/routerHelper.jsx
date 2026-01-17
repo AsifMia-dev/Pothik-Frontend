@@ -44,7 +44,7 @@ export const allRoutes = [
   { path: "/destinations/:destinationId/spots", element: SpotDetails, isPrivate: false },
   { path: "/about", element: Aboutpage, isPrivate: false },
   { path: "/blog", element: Blog, isPrivate: false },
-  { path: "/blog/:id", element: BlogDetails, isPrivate: false },
+  { path: "/blogs/:slugOrId/blog", element: BlogDetails, isPrivate: false },
   { path: "/contact", element: Contact, isPrivate: false },
   { path: "/login", element: Login, isPrivate: false },
   { path: "/register", element: Register, isPrivate: false },
