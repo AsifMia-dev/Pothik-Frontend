@@ -13,6 +13,8 @@ import Register from "../pages/Register";
 import ForgotPassword from "../pages/ForgotPassword";
 import Terms from "../pages/Terms";
 import PrivacyPolicy from '../pages/PrivacyPolicy';
+import PackageDetails from "../pages/user/PackageDetails";
+import Packages from "../pages/user/Package";
 
 /* ===================== USER PAGES ===================== */
 import DashboardUser from "../pages/user/Profile";
@@ -20,7 +22,6 @@ import MyBookings from "../pages/user/BookingsHistory";
 import CreatePackage from "../pages/user/CreatePackage";
 import LoyaltyPoints from "../pages/user/LoyaltyPoints";
 import PackageDetails from "../pages/user/PackageDetails";
-import BlogPost from "../pages/user/BlogPost";
 
 /* ===================== OWNER PAGES ===================== */
 import OwnerDashboard from "../pages/owner/Dashboard";
@@ -51,6 +52,8 @@ export const allRoutes = [
   { path: "/forgot-password", element: ForgotPassword, isPrivate: false },
   { path: "/terms", element: Terms, isPrivate: false },
   { path: "/privacy", element: PrivacyPolicy, isPrivate: false},
+  { path: "/PackageDetails", element: PackageDetails, isPrivate: false },
+  { path: "/packages", element: Packages, isPrivate: false },
 
   /* -------- User -------- */
   {
