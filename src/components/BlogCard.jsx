@@ -9,6 +9,15 @@ const BlogCard = ({ blog }) => {
     return new Date(dateString).toLocaleDateString('en-US', options);
   };
 
+  // Extract filename from full path
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800';
+    
+    // Extract just the filename from the full path
+    const filename = imagePath.split(/[\\/]/).pop(); // Handles both / and \
+    return `http://localhost:5000/uploads/blogs/${filename}`;
+  };
+
   return (
     <Link
       to={`/blogs/${blog.blog_id}/blog`}
@@ -18,9 +27,7 @@ const BlogCard = ({ blog }) => {
       <div 
         className="w-full bg-center bg-no-repeat aspect-video bg-cover"
         style={{
-          backgroundImage: blog.image 
-            ? `url(http://localhost:5000/uploads/${blog.image})` 
-            : `url(https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800)`
+          backgroundImage: `url(${getImageUrl(blog.image)})`
         }}
       />
       

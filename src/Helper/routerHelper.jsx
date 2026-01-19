@@ -21,7 +21,7 @@ import DashboardUser from "../pages/user/Profile";
 import MyBookings from "../pages/user/BookingsHistory";
 import CreatePackage from "../pages/user/CreatePackage";
 import LoyaltyPoints from "../pages/user/LoyaltyPoints";
-import PackageDetails from "../pages/user/PackageDetails";
+import BlogPost from "../pages/user/BlogPost";
 
 /* ===================== OWNER PAGES ===================== */
 import OwnerDashboard from "../pages/owner/Dashboard";
