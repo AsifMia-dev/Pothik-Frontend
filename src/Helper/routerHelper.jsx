@@ -49,38 +49,33 @@ export const allRoutes = [
   { path: "/register", element: Register, isPrivate: false },
   { path: "/forgot-password", element: ForgotPassword, isPrivate: false },
   { path: "/terms", element: Terms, isPrivate: false },
-  { path: "/privacy", element: PrivacyPolicy, isPrivate: false},
+  { path: "/privacy", element: PrivacyPolicy, isPrivate: false },
 
   /* -------- User -------- */
   {
     path: "/user/profile",
     element: DashboardUser,
     isPrivate: true,
-    role: "user",
   },
   {
     path: "/user/bookings",
     element: MyBookings,
     isPrivate: true,
-    role: "user",
   },
   {
     path: "/user/create-package",
     element: CreatePackage,
     isPrivate: true,
-    role: "user",
   },
   {
     path: "/user/loyalty-points",
     element: LoyaltyPoints,
     isPrivate: true,
-    role: "user",
   },
   {
     path: "/user/package/:id",
     element: PackageDetails,
     isPrivate: true,
-    role: "user",
   },
 
   /* -------- Owner -------- */
