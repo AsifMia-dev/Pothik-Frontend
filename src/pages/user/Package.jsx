@@ -175,6 +175,7 @@ const Packages = () => {
                     price={pkg.base_price}
                     days={pkg.duration_days}
                     startDate={pkg.Start_Date}
+                    capacity={pkg.capacity} // ✅ pass capacity prop
                   />
                 ))}
               </div>
