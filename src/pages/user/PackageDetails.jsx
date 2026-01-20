@@ -1,21 +1,103 @@
+// src/pages/user/PackageDetails.jsx
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import Layout from "../../components/Layout";
+import { useParams, Link } from "react-router-dom";
 import api from "../../Helper/baseUrl.helper";
+import Layout from "../../components/Layout";
 
 const PackageDetails = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // package_id from URL
   const [packageData, setPackageData] = useState(null);
+  const [destinations, setDestinations] = useState([]);
+  const [spots, setSpots] = useState([]);
+  const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
+  // Fetch package + related data
   useEffect(() => {
     const fetchPackageDetails = async () => {
       try {
-        const res = await api.get(`/packages/${id}`);
-        setPackageData(res.data);
+        // 1️⃣ Fetch package details
+        const resPkg = await api.get(`package/packages/${id}`);
+        const pkg = resPkg.data?.data;
+        if (!pkg) return;
+        setPackageData(pkg);
+
+        // 2️⃣ Fetch package destinations
+        const resDest = await api.get(`/packageDestination/package/${id}`);
+        const packageDestinations = resDest.data?.data || [];
+
+        if (packageDestinations.length > 0) {
+          // 2️⃣ Fetch full destination details
+          const destPromises = packageDestinations.map(async (pd) => {
+            const resDestDetails = await api.get(`/destination/destinations/${pd.destination_id}`);
+            const destination = resDestDetails.data?.data || {};
+
+            return {
+              destination_id: pd.destination_id,
+              name: destination.name || "Unnamed Destination",
+              image: destination.image || "https://via.placeholder.com/400x300?text=No+Image"
+            };
+          });
+
+          const destinationsData = await Promise.all(destPromises);
+          setDestinations(destinationsData);
+
+          // 3️⃣ Fetch spots for each destination
+          const spotPromises = packageDestinations.map(async (pd) => {
+            const resSpots = await api.get(`spot/destinations/${pd.destination_id}/spots`);
+            return (resSpots.data?.data || []).map(spot => ({
+              spot_id: spot.spot_id,
+              name: spot.name || "Unnamed Spot",
+              image: spot.image || "https://via.placeholder.com/400x300?text=No+Image",
+              destination_id: pd.destination_id // link spot to its destination
+            }));
+          });
+
+          const spotsData = (await Promise.all(spotPromises)).flat();
+          setSpots(spotsData);
+
+        } else {
+          setDestinations([]);
+          setSpots([]);
+        }
+
+        // 4️⃣ Fetch services for this package
+        const resServices = await api.get(`/package/${id}/services`);
+        const packageServices = resServices.data?.data || [];
+
+        // Separate services by type
+        const hotelServices = packageServices.filter(s => s.service_type === "hotel");
+        const transportServices = packageServices.filter(s => s.service_type === "transport");
+        const guideServices = packageServices.filter(s => s.service_type === "guide");
+
+        // 5️⃣ Fetch detailed info for each service type
+        const hotelPromises = hotelServices.map(async (h) => {
+          const res = await api.get(`/hotels/${h.service_id}`);
+          return res.data?.data || null;
+        });
+
+        const transportPromises = transportServices.map(async (t) => {
+          const res = await api.get(`/transports/${t.service_id}`);
+          return res.data?.data || null;
+        });
+
+        const guidePromises = guideServices.map(async (g) => {
+          const res = await api.get(`/guides/${g.service_id}`);
+          return res.data?.data || null;
+        });
+
+        const hotelsData = (await Promise.all(hotelPromises)).filter(Boolean);
+        const transportsData = (await Promise.all(transportPromises)).filter(Boolean);
+        const guidesData = (await Promise.all(guidePromises)).filter(Boolean);
+
+        // 6️⃣ Set state
+        setServices(packageServices); // all services
+        setHotels(hotelsData);       // detailed hotel info
+        setTransports(transportsData); // detailed transport info
+        setGuides(guidesData);       // detailed guide info
+
       } catch (err) {
-        setError('Failed to load package details.');
+        console.error("Failed to fetch package details:", err);
       } finally {
         setLoading(false);
       }
@@ -24,137 +106,114 @@ const PackageDetails = () => {
     fetchPackageDetails();
   }, [id]);
 
-  if (loading) return <p className="text-center mt-10">Loading package details...</p>;
-  if (error) return <p className="text-center text-red-500 mt-10">{error}</p>;
-  if (!packageData) return <p className="text-center mt-10">No package found.</p>;
+  // Format date helper
+  const formatDate = (dateString) => {
+    if (!dateString) return 'TBA';
+    const d = new Date(dateString);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
+  if (loading) return <Layout><p className="text-center mt-10">Loading package details...</p></Layout>;
+  if (!packageData) return <Layout><p className="text-center mt-10">Package not found</p></Layout>;
 
   return (
     <Layout>
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        {/* Breadcrumbs */}
-        <div className="flex flex-wrap gap-2 mb-6">
-          <a className="text-text-secondary dark:text-gray-400 text-sm font-medium hover:text-secondary" href="/">Home</a>
-          <span className="text-text-secondary dark:text-gray-400">/</span>
-          <a className="text-text-secondary dark:text-gray-400 text-sm font-medium hover:text-secondary" href="/destinations">Destinations</a>
-          <span className="text-text-secondary dark:text-gray-400">/</span>
-          <span className="text-text-primary dark:text-white text-sm font-medium">{packageData.title}</span>
-        </div>
+      <div className="container mx-auto px-4 py-8 md:py-12 flex flex-col gap-8">
 
-        {/* Header Image */}
-        <div className="bg-cover bg-center flex flex-col justify-end overflow-hidden rounded-xl min-h-[400px] shadow-lg" style={{ backgroundImage: `linear-gradient(0deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 40%), url(${packageData.headerImage})` }}>
-          <div className="flex flex-col p-6 md:p-10">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="material-symbols-outlined text-yellow-400 !text-xl" style={{ fontVariationSettings: `'FILL' 1` }}>star</span>
-              <span className="text-white font-bold">{packageData.rating}</span>
-              <span className="text-gray-300 text-sm">({packageData.reviews} reviews)</span>
-            </div>
-            <p className="text-white tracking-tight text-3xl md:text-5xl font-bold leading-tight">{packageData.title}</p>
-            <p className="text-gray-200 mt-2 text-base md:text-lg">{packageData.location} • {packageData.duration} Days / {packageData.nights} Nights</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 lg:gap-12 mt-8 lg:mt-12">
-          {/* Main Content */}
-          <div className="lg:col-span-2">
-            {/* Tabs */}
-            <div className="pb-3 border-b border-gray-200 dark:border-gray-700">
-              <div className="flex gap-6 md:gap-8 overflow-x-auto -mb-px">
-                <a className="flex flex-col items-center justify-center border-b-3 border-b-primary text-text-primary dark:text-white pb-3 pt-2" href="#">Overview</a>
-                <a className="flex flex-col items-center justify-center border-b-3 border-b-transparent text-text-secondary dark:text-gray-400 pb-3 pt-2 hover:text-secondary hover:border-secondary transition-colors" href="#">Itinerary</a>
-                <a className="flex flex-col items-center justify-center border-b-3 border-b-transparent text-text-secondary dark:text-gray-400 pb-3 pt-2 hover:text-secondary hover:border-secondary transition-colors" href="#">Inclusions</a>
-                <a className="flex flex-col items-center justify-center border-b-3 border-b-transparent text-text-secondary dark:text-gray-400 pb-3 pt-2 hover:text-secondary hover:border-secondary transition-colors" href="#">Hotels & Transport</a>
-                <a className="flex flex-col items-center justify-center border-b-3 border-b-transparent text-text-secondary dark:text-gray-400 pb-3 pt-2 hover:text-secondary hover:border-secondary transition-colors" href="#">Reviews</a>
-              </div>
+        {/* Package Header */}
+        <div className="flex flex-col md:flex-row gap-6">
+          <img
+            src={packageData.image ? `http://localhost:5000/uploads/${packageData.image}` : 'https://via.placeholder.com/600x400'}
+            alt={packageData.name}
+            className="w-full md:w-1/2 h-64 object-cover rounded-lg shadow-md"
+          />
+          <div className="flex-1 flex flex-col justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{packageData.name}</h1>
+              <p className="text-gray-600 dark:text-gray-300 mt-2">{packageData.description}</p>
+              <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
+                Duration: {packageData.duration_days} days
+              </p>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                Starts: {formatDate(packageData.Start_Date)}
+              </p>
             </div>
 
-            {/* Overview Content */}
-            <div className="mt-8 space-y-8">
-              <div>
-                <h2 className="text-text-primary dark:text-white tracking-tight text-2xl font-bold leading-tight text-left pb-3">Discover the Island of Gods</h2>
-                <p className="text-text-secondary dark:text-gray-300 leading-relaxed">{packageData.description}</p>
-              </div>
-
-              <div>
-                <h3 className="text-text-primary dark:text-white tracking-tight text-xl font-bold leading-tight text-left pb-4">Package Highlights</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {packageData.highlights?.map((highlight, index) => (
-                    <div key={index} className="flex items-start gap-4 p-4 bg-card-light dark:bg-card-dark rounded-xl shadow-sm">
-                      <div className="flex-shrink-0 size-8 flex items-center justify-center bg-secondary/20 text-secondary rounded-full">
-                        <span className="material-symbols-outlined !text-xl">{highlight.icon}</span>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-text-primary dark:text-white">{highlight.title}</h4>
-                        <p className="text-sm text-text-secondary dark:text-gray-400 mt-1">{highlight.description}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-text-primary dark:text-white tracking-tight text-xl font-bold leading-tight text-left pb-4">Image Gallery</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {packageData.gallery?.map((img, idx) => (
-                    <div key={idx} className="bg-cover bg-center rounded-lg aspect-square" style={{ backgroundImage: `url(${img})` }} />
-                  ))}
-                </div>
-              </div>
+            {/* Booking button */}
+            <div className="mt-4">
+              <Link
+                to={`/booking/${id}`}
+                className="px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition"
+              >
+                Book Now
+              </Link>
             </div>
           </div>
+        </div>
 
-          {/* Sticky Booking Card */}
-          <aside className="lg:col-span-1 relative mt-10 lg:mt-0">
-            <div className="sticky top-28 space-y-6">
-              <div className="bg-card-light dark:bg-card-dark rounded-xl shadow-md p-6">
-                <div className="flex items-baseline mb-4">
-                  <p className="text-text-secondary dark:text-gray-400 mr-1">From</p>
-                  <p className="text-3xl font-bold text-text-primary dark:text-white">${packageData.price}</p>
-                  <p className="text-text-secondary dark:text-gray-400 ml-1">/ person</p>
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-bold text-text-secondary dark:text-gray-300 mb-1" htmlFor="date">Select Dates</label>
-                    <div className="relative">
-                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                        <span className="material-symbols-outlined text-text-secondary !text-xl">calendar_month</span>
-                      </div>
-                      <input className="form-input w-full rounded-lg border-gray-200 dark:border-gray-600 bg-background-light dark:bg-background-dark pl-10 h-12 text-text-primary dark:text-white" id="date" placeholder="Check-in - Check-out" type="text" />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-bold text-text-secondary dark:text-gray-300 mb-1" htmlFor="travelers">Travelers</label>
-                    <div className="relative">
-                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                        <span className="material-symbols-outlined text-text-secondary !text-xl">group</span>
-                      </div>
-                      <select className="form-select w-full rounded-lg border-gray-200 dark:border-gray-600 bg-background-light dark:bg-background-dark pl-10 h-12 text-text-primary dark:text-white" id="travelers">
-                        <option>2 Adults, 0 Children</option>
-                        <option>1 Adult, 0 Children</option>
-                        <option>2 Adults, 1 Child</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                <button className="w-full mt-6 flex items-center justify-center rounded-lg h-12 px-6 bg-gradient-to-r from-primary to-[#FF9A8B] text-white text-base font-bold shadow-lg hover:shadow-xl transition-shadow">
-                  Book Now
-                </button>
-
-                <div className="flex justify-center gap-6 mt-4">
-                  <button className="flex items-center gap-1.5 text-sm text-text-secondary dark:text-gray-400 hover:text-secondary">
-                    <span className="material-symbols-outlined !text-lg">favorite_border</span> Save to Wishlist
-                  </button>
-                  <button className="flex items-center gap-1.5 text-sm text-text-secondary dark:text-gray-400 hover:text-secondary">
-                    <span className="material-symbols-outlined !text-lg">share</span> Share
-                  </button>
+        {/* Destinations */}
+        <section>
+          <h2 className="text-2xl font-bold mb-4">Destinations</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {destinations.map((dest) => (
+              <div key={dest.destination_id} className="rounded-lg overflow-hidden shadow-md bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700">
+                <img
+                  src={dest.image ? `http://localhost:5000/uploads/${dest.image}` : 'https://via.placeholder.com/400x300'}
+                  alt={dest.name}
+                  className="w-full h-48 object-cover"
+                />
+                <div className="p-4">
+                  <h3 className="text-lg font-bold">{dest.name}</h3>
                 </div>
               </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Spots */}
+        <section>
+          <h2 className="text-2xl font-bold mb-4">Spots</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {spots.map((spot) => (
+              <div key={spot.spot_id} className="rounded-lg overflow-hidden shadow-md bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700">
+                <img
+                  src={spot.image ? `http://localhost:5000/uploads/${spot.image}` : 'https://via.placeholder.com/400x300'}
+                  alt={spot.name}
+                  className="w-full h-48 object-cover"
+                />
+                <div className="p-4">
+                  <h3 className="text-lg font-bold">{spot.name}</h3>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Services */}
+        <section>
+          <h2 className="text-2xl font-bold mb-4">Services</h2>
+          {services.length === 0 ? (
+            <p className="text-gray-500 dark:text-gray-400">No services added for this package.</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {services.map((srv) => (
+                <div key={srv.service_id} className="rounded-lg overflow-hidden shadow-md bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 p-4">
+                  <h3 className="text-lg font-bold capitalize">{srv.type}</h3>
+                  {srv.type === "hotel" && (
+                    <p>{srv.name} - {srv.location}</p>
+                  )}
+                  {srv.type === "transport" && (
+                    <p>{srv.name} - {srv.vehicle_type}</p>
+                  )}
+                  {srv.type === "guide" && (
+                    <p>{srv.name} - {srv.expertise}</p>
+                  )}
+                </div>
+              ))}
             </div>
-          </aside>
-        </div>
-      </main>
+          )}
+        </section>
+      </div>
     </Layout>
   );
 };
