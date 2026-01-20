@@ -1,103 +1,108 @@
 // src/pages/user/PackageDetails.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import api from "../../Helper/baseUrl.helper";
 import Layout from "../../components/Layout";
+import api from "../../Helper/baseUrl.helper";
 
 const PackageDetails = () => {
-  const { id } = useParams(); // package_id from URL
-  const [packageData, setPackageData] = useState(null);
-  const [destinations, setDestinations] = useState([]);
-  const [spots, setSpots] = useState([]);
-  const [services, setServices] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { id } = useParams();
 
-  // Fetch package + related data
+  const [packageInfo, setPackageInfo] = useState({});
+  const [destinations, setDestinations] = useState([]);
+  const [services, setServices] = useState([]);
+  const [hotels, setHotels] = useState([]);
+  const [transports, setTransports] = useState([]);
+  const [guides, setGuides] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Format date
+  const formatDate = (dateString) => {
+    if (!dateString) return "TBA";
+    const options = { year: "numeric", month: "short", day: "numeric" };
+    return new Date(dateString).toLocaleDateString("en-US", options);
+  };
+
+  // Format price
+  const formatPrice = (price) => {
+    if (!price) return "0";
+    return parseFloat(price).toLocaleString("en-BD");
+  };
+
   useEffect(() => {
     const fetchPackageDetails = async () => {
       try {
-        // 1️⃣ Fetch package details
-        const resPkg = await api.get(`package/packages/${id}`);
-        const pkg = resPkg.data?.data;
-        if (!pkg) return;
-        setPackageData(pkg);
+        setLoading(true);
 
-        // 2️⃣ Fetch package destinations
+        // 1️⃣ Fetch package info
+        const resPackage = await api.get(`/package/packages/${id}`);
+        const pkg = resPackage.data?.data;
+        if (!pkg) throw new Error("Package not found");
+        setPackageInfo(pkg);
+
+        // 2️⃣ Fetch destinations (with spots included)
         const resDest = await api.get(`/packageDestination/package/${id}`);
         const packageDestinations = resDest.data?.data || [];
 
         if (packageDestinations.length > 0) {
-          // 2️⃣ Fetch full destination details
           const destPromises = packageDestinations.map(async (pd) => {
             const resDestDetails = await api.get(`/destination/destinations/${pd.destination_id}`);
-            const destination = resDestDetails.data?.data || {};
+            const destination = resDestDetails.data?.destination || {};
 
             return {
-              destination_id: pd.destination_id,
+              destination_id: destination.destination_id,
               name: destination.name || "Unnamed Destination",
-              image: destination.image || "https://via.placeholder.com/400x300?text=No+Image"
+              image: destination.image || "https://via.placeholder.com/400x300?text=No+Image",
+              spots: (destination.spots || []).map(spot => ({
+                spot_id: spot.spot_id,
+                name: spot.name || "Unnamed Spot",
+                image: spot.image || "https://via.placeholder.com/150",
+                description: spot.description || ""
+              }))
             };
           });
 
           const destinationsData = await Promise.all(destPromises);
           setDestinations(destinationsData);
-
-          // 3️⃣ Fetch spots for each destination
-          const spotPromises = packageDestinations.map(async (pd) => {
-            const resSpots = await api.get(`spot/destinations/${pd.destination_id}/spots`);
-            return (resSpots.data?.data || []).map(spot => ({
-              spot_id: spot.spot_id,
-              name: spot.name || "Unnamed Spot",
-              image: spot.image || "https://via.placeholder.com/400x300?text=No+Image",
-              destination_id: pd.destination_id // link spot to its destination
-            }));
-          });
-
-          const spotsData = (await Promise.all(spotPromises)).flat();
-          setSpots(spotsData);
-
-        } else {
-          setDestinations([]);
-          setSpots([]);
         }
 
-        // 4️⃣ Fetch services for this package
-        const resServices = await api.get(`/package/${id}/services`);
+        // 3️⃣ Fetch all services for this package
+        const resServices = await api.get(`/service/package/${id}`);
         const packageServices = resServices.data?.data || [];
+        setServices(packageServices);
 
-        // Separate services by type
+        // Separate by type
         const hotelServices = packageServices.filter(s => s.service_type === "hotel");
         const transportServices = packageServices.filter(s => s.service_type === "transport");
         const guideServices = packageServices.filter(s => s.service_type === "guide");
 
-        // 5️⃣ Fetch detailed info for each service type
+        // 4️⃣ Fetch detailed info for each service
         const hotelPromises = hotelServices.map(async (h) => {
-          const res = await api.get(`/hotels/${h.service_id}`);
-          return res.data?.data || null;
+          const res = await api.get(`/hotel/hotels/${h.service_id}`);
+          return res.data || null;
         });
 
         const transportPromises = transportServices.map(async (t) => {
-          const res = await api.get(`/transports/${t.service_id}`);
-          return res.data?.data || null;
+          const res = await api.get(`/transport/transports/${t.service_id}`);
+          return res.data?.transport || null; // <-- fix here
         });
 
         const guidePromises = guideServices.map(async (g) => {
-          const res = await api.get(`/guides/${g.service_id}`);
-          return res.data?.data || null;
+          const res = await api.get(`/guide/guides/${g.service_id}`);
+          return res.data || null;
         });
 
         const hotelsData = (await Promise.all(hotelPromises)).filter(Boolean);
         const transportsData = (await Promise.all(transportPromises)).filter(Boolean);
         const guidesData = (await Promise.all(guidePromises)).filter(Boolean);
 
-        // 6️⃣ Set state
-        setServices(packageServices); // all services
-        setHotels(hotelsData);       // detailed hotel info
-        setTransports(transportsData); // detailed transport info
-        setGuides(guidesData);       // detailed guide info
+        setHotels(hotelsData);
+        setTransports(transportsData);
+        setGuides(guidesData);
 
       } catch (err) {
-        console.error("Failed to fetch package details:", err);
+        console.error(err);
+        setError("Failed to fetch package details.");
       } finally {
         setLoading(false);
       }
@@ -106,113 +111,110 @@ const PackageDetails = () => {
     fetchPackageDetails();
   }, [id]);
 
-  // Format date helper
-  const formatDate = (dateString) => {
-    if (!dateString) return 'TBA';
-    const d = new Date(dateString);
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  };
-
-  if (loading) return <Layout><p className="text-center mt-10">Loading package details...</p></Layout>;
-  if (!packageData) return <Layout><p className="text-center mt-10">Package not found</p></Layout>;
+  if (loading) return <p className="text-center mt-10">Loading package details...</p>;
+  if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
+  if (!packageInfo) return <p className="text-center mt-10">Package not found.</p>;
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8 md:py-12 flex flex-col gap-8">
+      <div className="max-w-6xl mx-auto px-4 py-10 flex flex-col gap-8">
 
-        {/* Package Header */}
-        <div className="flex flex-col md:flex-row gap-6">
+        {/* Package Image with Name Overlay */}
+        <div className="relative w-full h-80 rounded-xl overflow-hidden">
           <img
-            src={packageData.image ? `http://localhost:5000/uploads/${packageData.image}` : 'https://via.placeholder.com/600x400'}
-            alt={packageData.name}
-            className="w-full md:w-1/2 h-64 object-cover rounded-lg shadow-md"
+            src={packageInfo.image 
+              ? `http://localhost:5000/uploads/${packageInfo.image}`
+              : "https://via.placeholder.com/1200x500?text=No+Image"}
+            alt={packageInfo.name}
+            className="w-full h-full object-cover"
           />
-          <div className="flex-1 flex flex-col justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{packageData.name}</h1>
-              <p className="text-gray-600 dark:text-gray-300 mt-2">{packageData.description}</p>
-              <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
-                Duration: {packageData.duration_days} days
-              </p>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Starts: {formatDate(packageData.Start_Date)}
-              </p>
+          <h1 className="absolute inset-0 flex items-center justify-center text-4xl font-bold text-white bg-black/40">
+            {packageInfo.name}
+          </h1>
+        </div>
+
+        {/* Package Information */}
+        <div className="flex flex-col gap-6">
+          <div className="p-4 border rounded-lg bg-white dark:bg-card-dark">
+            <h2 className="text-xl font-bold mb-2">Package Information</h2>
+            <p><strong>Duration:</strong> {packageInfo.duration_days || "N/A"} days</p>
+            <p><strong>Start Date:</strong> {formatDate(packageInfo.Start_Date)}</p>
+            <p><strong>Description:</strong> {packageInfo.description || "No description available."}</p>
+          </div>
+
+          {/* Destinations & Spots */}
+          {destinations.map(dest => (
+            <div key={dest.destination_id} className="p-4 border rounded-lg bg-white dark:bg-card-dark">
+              <h2 className="text-xl font-bold mb-2">Destination: {dest.name}</h2>
+              <img
+                src={dest.image}
+                alt={dest.name}
+                className="w-full h-48 object-cover rounded mb-4"
+              />
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {dest.spots.map(spot => (
+                  <div key={spot.spot_id} className="flex flex-col items-center">
+                    <img
+                      src={spot.image}
+                      alt={spot.name}
+                      className="w-full h-24 object-cover rounded"
+                    />
+                    <span className="text-sm mt-1">{spot.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          {/* Services */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Hotels */}
+            <div className="p-4 border rounded-lg bg-white dark:bg-card-dark">
+              <h2 className="text-xl font-bold mb-2">Hotels</h2>
+              {hotels.length > 0 ? hotels.map(h => (
+                <div key={h.hotel_id} className="mb-4">
+                  <p className="font-semibold">{h.name}</p>
+                  <p className="text-sm">{h.location}</p>
+                </div>
+              )) : <p>No hotels available</p>}
             </div>
 
-            {/* Booking button */}
-            <div className="mt-4">
-              <Link
-                to={`/booking/${id}`}
-                className="px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition"
-              >
-                Book Now
-              </Link>
+            {/* Transports */}
+            <div className="p-4 border rounded-lg bg-white dark:bg-card-dark">
+              <h2 className="text-xl font-bold mb-2">Transports</h2>
+              {transports.length > 0 ? transports.map(t => (
+                <div key={t.transport_id} className="mb-4">
+                  <p className="font-semibold">{t.vehicle_type} - {t.model}</p>
+                  <p className="text-sm">Capacity: {t.capacity}</p>
+                </div>
+              )) : <p>No transport services available</p>}
+            </div>
+
+            {/* Guides */}
+            <div className="p-4 border rounded-lg bg-white dark:bg-card-dark">
+              <h2 className="text-xl font-bold mb-2">Guides</h2>
+              {guides.length > 0 ? guides.map(g => (
+                <div key={g.guide_id} className="mb-4">
+                  <p className="font-semibold">{g.full_name}</p>
+                  <p className="text-sm">{g.experience} years experience</p>
+                </div>
+              )) : <p>No guides available</p>}
             </div>
           </div>
         </div>
 
-        {/* Destinations */}
-        <section>
-          <h2 className="text-2xl font-bold mb-4">Destinations</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {destinations.map((dest) => (
-              <div key={dest.destination_id} className="rounded-lg overflow-hidden shadow-md bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700">
-                <img
-                  src={dest.image ? `http://localhost:5000/uploads/${dest.image}` : 'https://via.placeholder.com/400x300'}
-                  alt={dest.name}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="p-4">
-                  <h3 className="text-lg font-bold">{dest.name}</h3>
-                </div>
-              </div>
-            ))}
+        {/* Price & Booking */}
+        <div className="flex items-center justify-between mt-8">
+          <div className="text-3xl font-bold text-primary">
+            ৳{formatPrice(packageInfo.base_price)}
           </div>
-        </section>
-
-        {/* Spots */}
-        <section>
-          <h2 className="text-2xl font-bold mb-4">Spots</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {spots.map((spot) => (
-              <div key={spot.spot_id} className="rounded-lg overflow-hidden shadow-md bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700">
-                <img
-                  src={spot.image ? `http://localhost:5000/uploads/${spot.image}` : 'https://via.placeholder.com/400x300'}
-                  alt={spot.name}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="p-4">
-                  <h3 className="text-lg font-bold">{spot.name}</h3>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Services */}
-        <section>
-          <h2 className="text-2xl font-bold mb-4">Services</h2>
-          {services.length === 0 ? (
-            <p className="text-gray-500 dark:text-gray-400">No services added for this package.</p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {services.map((srv) => (
-                <div key={srv.service_id} className="rounded-lg overflow-hidden shadow-md bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 p-4">
-                  <h3 className="text-lg font-bold capitalize">{srv.type}</h3>
-                  {srv.type === "hotel" && (
-                    <p>{srv.name} - {srv.location}</p>
-                  )}
-                  {srv.type === "transport" && (
-                    <p>{srv.name} - {srv.vehicle_type}</p>
-                  )}
-                  {srv.type === "guide" && (
-                    <p>{srv.name} - {srv.expertise}</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
+          <Link
+            to={`/booking/${packageInfo.package_id}`}
+            className="px-6 py-3 bg-[#034D41] text-white font-bold rounded-lg hover:bg-primary/90 transition"
+          >
+            Book Now
+          </Link>
+        </div>
       </div>
     </Layout>
   );
