@@ -38,10 +38,11 @@ const Login = () => {
       if (response.data.success) {
         // Backend returns user inside data object
         const userData = response.data.data.user;
+        console.log('Logged in user data:', userData);
         const token = response.data.data.token;
-
+        console.log('Received token:', token);
         // Store token in localStorage
-        localStorage.setItem('token', token);
+        sessionStorage.setItem('token', token);
 
         // Store user in context
         login(userData);

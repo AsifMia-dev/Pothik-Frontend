@@ -24,6 +24,7 @@ const AuthProvider = ({children}) => {
     const logout = () =>{
         setUser(null);
         sessionStorage.removeItem("authUser");
+        sessionStorage.removeItem("token");
     }
     if(loading){
         return <div>Loading...</div>;

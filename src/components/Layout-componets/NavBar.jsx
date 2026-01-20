@@ -74,9 +74,15 @@ const NavBar = () => {
       <div className="flex gap-2 items-center">
         {user ? (
           <>
-            <span className="text-sm font-medium text-deep-teal dark:text-off-white mr-2">
-              Welcome, {user.full_name}
-            </span>
+            <Link
+              to="/user/profile"
+              className="flex items-center gap-2 text-sm font-medium text-deep-teal dark:text-off-white mr-2 hover:text-[#034D41] dark:hover:text-primary transition-colors"
+            >
+              <span className="w-8 h-8 bg-[#034D41] text-white rounded-full flex items-center justify-center text-sm font-bold">
+                {user.full_name?.charAt(0)?.toUpperCase() || 'U'}
+              </span>
+              {user.full_name}
+            </Link>
             <button
               onClick={handleLogout}
               className="bg-red-600 text-sm text-white font-medium px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"

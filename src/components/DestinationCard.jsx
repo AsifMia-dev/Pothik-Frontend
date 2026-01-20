@@ -11,6 +11,20 @@ const DestinationCard = ({
   image,
   spots = [],
 }) => {
+  // Extract filename from full path and construct proper URL
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return FALLBACK_IMAGE;
+    
+    // If it's already a full URL, return as is
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      return imagePath;
+    }
+    
+    // Extract just the filename from the full path
+    const filename = imagePath.split(/[\\/]/).pop(); // Handles both / and \
+    return `http://localhost:5000/uploads/destinations/${filename}`;
+  };
+
   return (
     <Link
       to={`/destinations/${destinationId}/spots`}
@@ -21,7 +35,7 @@ const DestinationCard = ({
       <div className="relative">
         <div
           className="aspect-video w-full bg-cover bg-center"
-          style={{ backgroundImage: `url(${image || FALLBACK_IMAGE})` }}
+          style={{ backgroundImage: `url(${getImageUrl(image)})` }}
         ></div>
 
         {/* Spots count */}

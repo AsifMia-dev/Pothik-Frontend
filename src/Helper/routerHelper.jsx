@@ -13,13 +13,15 @@ import Register from "../pages/Register";
 import ForgotPassword from "../pages/ForgotPassword";
 import Terms from "../pages/Terms";
 import PrivacyPolicy from '../pages/PrivacyPolicy';
+import PackageDetails from "../pages/user/PackageDetails";
+import Packages from "../pages/user/Package";
 
 /* ===================== USER PAGES ===================== */
 import DashboardUser from "../pages/user/Profile";
 import MyBookings from "../pages/user/BookingsHistory";
 import CreatePackage from "../pages/user/CreatePackage";
 import LoyaltyPoints from "../pages/user/LoyaltyPoints";
-import PackageDetails from "../pages/user/PackageDetails";
+import BlogPost from "../pages/user/BlogPost";
 
 /* ===================== OWNER PAGES ===================== */
 import OwnerDashboard from "../pages/owner/Dashboard";
@@ -50,32 +52,45 @@ export const allRoutes = [
   { path: "/forgot-password", element: ForgotPassword, isPrivate: false },
   { path: "/terms", element: Terms, isPrivate: false },
   { path: "/privacy", element: PrivacyPolicy, isPrivate: false },
+  { path: "/PackageDetails", element: PackageDetails, isPrivate: false },
+  { path: "/packages", element: Packages, isPrivate: false },
 
   /* -------- User -------- */
   {
     path: "/user/profile",
     element: DashboardUser,
     isPrivate: true,
+    role: "customer"
   },
   {
     path: "/user/bookings",
     element: MyBookings,
     isPrivate: true,
+    role: "customer"
   },
   {
     path: "/user/create-package",
     element: CreatePackage,
     isPrivate: true,
+    role: "customer"
   },
   {
     path: "/user/loyalty-points",
     element: LoyaltyPoints,
     isPrivate: true,
+    role: "customer"
   },
   {
     path: "/user/package/:id",
     element: PackageDetails,
     isPrivate: true,
+    role: "customer"
+  },
+  {
+    path: "/user/blog-post",
+    element: BlogPost,
+    isPrivate: true,
+    role: "customer"
   },
 
   /* -------- Owner -------- */
@@ -83,7 +98,7 @@ export const allRoutes = [
     path: "/owner/dashboard",
     element: OwnerDashboard,
     isPrivate: true,
-    role: "owner",
+    role: "owner"
   },
 
   /* -------- Admin -------- */
@@ -136,4 +151,3 @@ export const renderRouterElement = (route) => {
   }
   return <Component />;
 }
-
