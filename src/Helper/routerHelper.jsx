@@ -51,7 +51,7 @@ export const allRoutes = [
   { path: "/register", element: Register, isPrivate: false },
   { path: "/forgot-password", element: ForgotPassword, isPrivate: false },
   { path: "/terms", element: Terms, isPrivate: false },
-  { path: "/privacy", element: PrivacyPolicy, isPrivate: false},
+  { path: "/privacy", element: PrivacyPolicy, isPrivate: false },
   { path: "/PackageDetails", element: PackageDetails, isPrivate: false },
   { path: "/packages", element: Packages, isPrivate: false },
 
@@ -151,4 +151,3 @@ export const renderRouterElement = (route) => {
   }
   return <Component />;
 }
-
