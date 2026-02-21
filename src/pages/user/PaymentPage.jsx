@@ -18,10 +18,10 @@ const PaymentPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Booking details
-    const [travelers, setTravelers] = useState({
-        adults: parseInt(searchParams.get("adults")) || 1,
-        children: parseInt(searchParams.get("children")) || 0,
+    // Booking details - single traveler only for prebuilt packages
+    const [travelers] = useState({
+        adults: 1,
+        children: 0,
     });
     const [travelDate, setTravelDate] = useState(searchParams.get("date") || "");
     const [specialRequests, setSpecialRequests] = useState("");
@@ -64,15 +64,12 @@ const PaymentPage = () => {
         return parseFloat(price).toLocaleString("en-BD");
     };
 
-    // Calculate pricing
+    // Calculate pricing - single traveler
     const calculatePricing = () => {
         const basePrice = parseFloat(packageInfo?.base_price) || 0;
-        const totalTravelers = travelers.adults + travelers.children;
-        const childDiscount = 0.5; // 50% discount for children
+        const totalTravelers = 1;
 
-        const adultTotal = basePrice * travelers.adults;
-        const childTotal = basePrice * travelers.children * childDiscount;
-        const subtotal = adultTotal + childTotal;
+        const subtotal = basePrice;
 
         // Coupon discount
         let couponDiscount = 0;
@@ -90,12 +87,12 @@ const PaymentPage = () => {
         // Loyalty points discount (1 point = 1 BDT)
         const loyaltyDiscount = useLoyaltyPoints ? Math.min(pointsToUse, loyaltyPoints) : 0;
 
-        // Tax (5%)
+        // Tax (0%)
         const taxableAmount = subtotal - couponDiscount - loyaltyDiscount;
-        const tax = taxableAmount * 0.05;
+        const tax = 0;
 
         // Service fee
-        const serviceFee = 200;
+        const serviceFee = 0;
 
         // Grand total
         const grandTotal = Math.max(0, taxableAmount + tax + serviceFee);
@@ -105,8 +102,6 @@ const PaymentPage = () => {
 
         return {
             basePrice,
-            adultTotal,
-            childTotal,
             subtotal,
             couponDiscount,
             loyaltyDiscount,
@@ -178,18 +173,16 @@ const PaymentPage = () => {
         fetchPackageDetails();
     }, [packageId, user]);
 
-    // Initialize traveler details (only for adults, children don't need NID)
+    // Initialize single traveler details
     useEffect(() => {
-        const details = [];
-        for (let i = 0; i < travelers.adults; i++) {
-            details.push({
-                name: i === 0 && user?.full_name ? user.full_name : "",
-                nid: "",
-                type: "adult",
-            });
-        }
-        setTravelerDetails(details);
-    }, [travelers.adults, user]);
+        setTravelerDetails([{
+            name: user?.full_name || "",
+            nid: "",
+            phone: user?.phone || "",
+            email: user?.email || "",
+            type: "adult",
+        }]);
+    }, [user]);
 
     // Apply coupon
     const applyCoupon = async () => {
@@ -263,9 +256,17 @@ const PaymentPage = () => {
         }
 
         // Validate traveler details
-        const emptyNames = travelerDetails.filter((t) => !t.name.trim());
-        if (emptyNames.length > 0) {
-            alert("Please enter names for all travelers");
+        const traveler = travelerDetails[0];
+        if (!traveler?.name?.trim()) {
+            alert("Please enter your full name");
+            return;
+        }
+        if (!traveler?.phone?.trim()) {
+            alert("Please enter your phone number");
+            return;
+        }
+        if (!traveler?.email?.trim()) {
+            alert("Please enter your email address");
             return;
         }
 
@@ -281,14 +282,14 @@ const PaymentPage = () => {
         try {
             const pricing = calculatePricing();
 
-            // Create booking
+            // Create booking - single traveler
             const bookingData = {
                 user_id: user.user_id,
                 package_id: parseInt(packageId),
                 travel_date: travelDate,
-                num_travelers: travelers.adults + travelers.children,
-                adults: travelers.adults,
-                children: travelers.children,
+                num_travelers: 1,
+                adults: 1,
+                children: 0,
                 total_price: pricing.grandTotal,
                 paid_amount: pricing.payableAmount,
                 payment_type: paymentType,
@@ -411,7 +412,7 @@ const PaymentPage = () => {
                         <div className="space-y-2 text-gray-700">
                             <p><strong>Package:</strong> {packageInfo.name}</p>
                             <p><strong>Travel Date:</strong> {new Date(travelDate).toLocaleDateString("en-BD", { dateStyle: "long" })}</p>
-                            <p><strong>Travelers:</strong> {travelers.adults} Adults, {travelers.children} Children</p>
+                            <p><strong>Traveler:</strong> 1 Person</p>
                             <p><strong>Amount Paid:</strong> ৳{formatPrice(calculatePricing().payableAmount)}</p>
                             {paymentType === "partial" && (
                                 <p className="text-orange-600"><strong>Remaining:</strong> ৳{formatPrice(calculatePricing().partialAmount)} (Due before trip)</p>
@@ -490,52 +491,8 @@ const PaymentPage = () => {
                         {/* Traveler Details Form */}
                         <div className="bg-white rounded-xl shadow-lg p-6">
                             <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                                <span>👥</span> Traveler Details
+                                <span>�</span> Traveler Information
                             </h3>
-
-                            {/* Number of Travelers */}
-                            <div className="grid grid-cols-2 gap-4 mb-6">
-                                <div>
-                                    <label className="block text-sm font-medium mb-2">Adults</label>
-                                    <div className="flex items-center gap-2">
-                                        <button
-                                            type="button"
-                                            onClick={() => setTravelers((p) => ({ ...p, adults: Math.max(1, p.adults - 1) }))}
-                                            className="w-10 h-10 bg-gray-200 rounded-lg font-bold hover:bg-gray-300"
-                                        >
-                                            -
-                                        </button>
-                                        <span className="w-12 text-center font-bold text-xl">{travelers.adults}</span>
-                                        <button
-                                            type="button"
-                                            onClick={() => setTravelers((p) => ({ ...p, adults: p.adults + 1 }))}
-                                            className="w-10 h-10 bg-[#034D41] text-white rounded-lg font-bold hover:bg-[#023830]"
-                                        >
-                                            +
-                                        </button>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium mb-2">Children (50% off)</label>
-                                    <div className="flex items-center gap-2">
-                                        <button
-                                            type="button"
-                                            onClick={() => setTravelers((p) => ({ ...p, children: Math.max(0, p.children - 1) }))}
-                                            className="w-10 h-10 bg-gray-200 rounded-lg font-bold hover:bg-gray-300"
-                                        >
-                                            -
-                                        </button>
-                                        <span className="w-12 text-center font-bold text-xl">{travelers.children}</span>
-                                        <button
-                                            type="button"
-                                            onClick={() => setTravelers((p) => ({ ...p, children: p.children + 1 }))}
-                                            className="w-10 h-10 bg-[#034D41] text-white rounded-lg font-bold hover:bg-[#023830]"
-                                        >
-                                            +
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
 
                             {/* Travel Date */}
                             <div className="mb-6">
@@ -549,36 +506,51 @@ const PaymentPage = () => {
                                 />
                             </div>
 
-                            {/* Traveler Names & NID (Adults only) */}
+                            {/* Traveler Information */}
                             <div className="space-y-4">
-                                {travelerDetails.map((traveler, index) => (
-                                    <div key={index} className="p-4 bg-gray-50 rounded-lg">
-                                        <p className="text-sm font-medium mb-2 text-[#034D41]">
-                                            Adult {index + 1}
-                                            {index === 0 && " (Primary Contact)"}
-                                        </p>
-                                        <div className="grid grid-cols-2 gap-4">
+                                {travelerDetails.length > 0 && (
+                                    <div className="p-4 bg-gray-50 rounded-lg space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium mb-2">Full Name *</label>
                                             <input
                                                 type="text"
-                                                placeholder="Full Name"
-                                                value={traveler.name}
-                                                onChange={(e) => updateTravelerDetail(index, "name", e.target.value)}
-                                                className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#034D41]"
+                                                placeholder="Enter your full name"
+                                                value={travelerDetails[0]?.name || ""}
+                                                onChange={(e) => updateTravelerDetail(0, "name", e.target.value)}
+                                                className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#034D41]"
                                             />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium mb-2">Phone Number *</label>
+                                            <input
+                                                type="tel"
+                                                placeholder="01XXXXXXXXX"
+                                                value={travelerDetails[0]?.phone || ""}
+                                                onChange={(e) => updateTravelerDetail(0, "phone", e.target.value)}
+                                                className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#034D41]"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium mb-2">Email Address *</label>
+                                            <input
+                                                type="email"
+                                                placeholder="your@email.com"
+                                                value={travelerDetails[0]?.email || ""}
+                                                onChange={(e) => updateTravelerDetail(0, "email", e.target.value)}
+                                                className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#034D41]"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium mb-2">NID / Passport (Optional)</label>
                                             <input
                                                 type="text"
-                                                placeholder="NID / Passport (Optional)"
-                                                value={traveler.nid}
-                                                onChange={(e) => updateTravelerDetail(index, "nid", e.target.value)}
-                                                className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#034D41]"
+                                                placeholder="Enter NID or Passport number"
+                                                value={travelerDetails[0]?.nid || ""}
+                                                onChange={(e) => updateTravelerDetail(0, "nid", e.target.value)}
+                                                className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#034D41]"
                                             />
                                         </div>
                                     </div>
-                                ))}
-                                {travelers.children > 0 && (
-                                    <p className="text-sm text-gray-500 italic">
-                                        * {travelers.children} child(ren) included in this booking
-                                    </p>
                                 )}
                             </div>
 
@@ -630,15 +602,9 @@ const PaymentPage = () => {
 
                             <div className="space-y-3 text-gray-700">
                                 <div className="flex justify-between">
-                                    <span>Base Price × {travelers.adults} Adults</span>
-                                    <span>৳{formatPrice(pricing.adultTotal)}</span>
+                                    <span>Package Price (1 Person)</span>
+                                    <span>৳{formatPrice(pricing.basePrice)}</span>
                                 </div>
-                                {travelers.children > 0 && (
-                                    <div className="flex justify-between">
-                                        <span>Base Price × {travelers.children} Children (50% off)</span>
-                                        <span>৳{formatPrice(pricing.childTotal)}</span>
-                                    </div>
-                                )}
                                 <div className="flex justify-between font-medium border-t pt-2">
                                     <span>Subtotal</span>
                                     <span>৳{formatPrice(pricing.subtotal)}</span>
