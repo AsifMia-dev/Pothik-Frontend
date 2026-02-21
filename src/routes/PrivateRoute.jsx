@@ -5,10 +5,14 @@ import { AuthContext } from '../context/AuthContext.jsx';
 
 const PrivateRoute = (props) => {
     const { children, role } = props;
-    const { user } = useContext(AuthContext);
+    const { user, loading } = useContext(AuthContext);
 
     // Debug: Log user and role info
     console.log('PrivateRoute Check:', { user, requiredRole: role, userRole: user?.role });
+
+    if (loading) {
+        return <div>Checking authentication...</div>;
+    }
 
     if (!user) {
         return <Navigate to="/login" replace />;
@@ -23,5 +27,5 @@ const PrivateRoute = (props) => {
     return children;
 }
 
-export default PrivateRoute
+export default PrivateRoute;
 
