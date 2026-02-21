@@ -122,7 +122,7 @@ const PackageDetails = () => {
         {/* Package Image with Name Overlay */}
         <div className="relative w-full h-80 rounded-xl overflow-hidden">
           <img
-            src={packageInfo.image 
+            src={packageInfo.image
               ? `http://localhost:5000/uploads/${packageInfo.image}`
               : "https://via.placeholder.com/1200x500?text=No+Image"}
             alt={packageInfo.name}
@@ -209,7 +209,7 @@ const PackageDetails = () => {
             ৳{formatPrice(packageInfo.base_price)}
           </div>
           <Link
-            to={`/booking/${packageInfo.package_id}`}
+            to={`/payment/${packageInfo.package_id}`}
             className="px-6 py-3 bg-[#034D41] text-white font-bold rounded-lg hover:bg-primary/90 transition"
           >
             Book Now

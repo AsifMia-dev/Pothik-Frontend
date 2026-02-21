@@ -22,6 +22,7 @@ import MyBookings from "../pages/user/BookingsHistory";
 import CreatePackage from "../pages/user/CreatePackage";
 import LoyaltyPoints from "../pages/user/LoyaltyPoints";
 import BlogPost from "../pages/user/BlogPost";
+import PaymentPage from "../pages/user/PaymentPage";
 
 /* ===================== OWNER PAGES ===================== */
 import OwnerDashboard from "../pages/owner/Dashboard";
@@ -89,6 +90,12 @@ export const allRoutes = [
   {
     path: "/user/blog-post",
     element: BlogPost,
+    isPrivate: true,
+    role: "customer"
+  },
+  {
+    path: "/payment/:packageId",
+    element: PaymentPage,
     isPrivate: true,
     role: "customer"
   },
