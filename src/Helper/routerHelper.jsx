@@ -23,6 +23,7 @@ import CreatePackage from "../pages/user/CreatePackage";
 import LoyaltyPoints from "../pages/user/LoyaltyPoints";
 import BlogPost from "../pages/user/BlogPost";
 import PaymentPage from "../pages/user/PaymentPage";
+import CustomPackage from "../pages/user/CustomPackage";
 
 /* ===================== OWNER PAGES ===================== */
 import OwnerDashboard from "../pages/owner/Dashboard";
@@ -97,6 +98,12 @@ export const allRoutes = [
     path: "/payment/:packageId",
     element: PaymentPage,
     isPrivate: true,
+    role: "customer"
+  },
+  {
+    path: "/custom-package",
+    element: CustomPackage,
+    isPrivate: false,
     role: "customer"
   },
 
