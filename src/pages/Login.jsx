@@ -4,10 +4,10 @@ import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase.config';
 import { AuthContext } from '../context/AuthContext';
 import API from '../Helper/baseUrl.helper';
+import { useEffect } from 'react';
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -16,6 +16,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const { login, user } = useContext(AuthContext);
 
   const handleChange = (e) => {
     setFormData({
@@ -46,10 +47,7 @@ const Login = () => {
 
         // Store user in context
         login(userData);
-
-        // Redirect to home page
-        navigate('/');
-      }
+    }
     } catch (err) {
       console.error('Login error:', err.response?.data || err.message);
       setError(err.response?.data?.error || err.response?.data?.message || 'Login failed. Please try again.');
@@ -98,6 +96,18 @@ const Login = () => {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    if (user) {
+      console.log("Redirecting user role:", user.role);
+      if (user.role?.toLowerCase() === 'admin') {
+        navigate('/admin/dashboard');
+      } else if (user.role === 'owner') {
+        navigate('/owner/dashboard');
+      } else {
+        navigate('/');
+      }
+    }
+  }, [user, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-6 px-4 sm:px-6 lg:px-8">
