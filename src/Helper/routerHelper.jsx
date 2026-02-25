@@ -26,7 +26,9 @@ import PaymentPage from "../pages/user/PaymentPage";
 import CustomPackage from "../pages/user/CustomPackage";
 
 /* ===================== OWNER PAGES ===================== */
-import OwnerDashboard from "../pages/owner/Dashboard";
+import OwnerDashboard from "../pages/owner/Hotelownerdashboard";
+import OwnerBookings from "../pages/owner/Transportownerdashboard";
+import OwnerPackages from "../pages/owner/Tourguidedashboard";
 
 /* ===================== ADMIN PAGES ===================== */
 import AdminDashboard from "../pages/admin/Dashboard";
@@ -109,8 +111,20 @@ export const allRoutes = [
 
   /* -------- Owner -------- */
   {
-    path: "/owner/dashboard",
+    path: "/owner/Hotelownerdashboard",
     element: OwnerDashboard,
+    isPrivate: true,
+    role: "owner"
+  },
+  {
+    path: "/owner/Transportownerdashboard",
+    element: OwnerBookings,
+    isPrivate: true,
+    role: "owner"
+  },
+  {
+    path: "/owner/Tourguidedashboard",
+    element: OwnerPackages,
     isPrivate: true,
     role: "owner"
   },
