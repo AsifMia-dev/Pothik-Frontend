@@ -37,6 +37,7 @@ import BookingManagement from "../pages/admin/BookingManagement";
 import DestinationManagement from "../pages/admin/DestinationManagement";
 import PackageManagement from "../pages/admin/PackageManagement";
 import UserManagement from "../pages/admin/UserManagement";
+import AdminLayout from "../pages/admin/AdminLayout";
 
 /* ===================== ROUTE GUARD ===================== */
 import PrivateRoute from "../routes/PrivateRoute";
@@ -58,7 +59,6 @@ export const allRoutes = [
   { path: "/privacy", element: PrivacyPolicy, isPrivate: false },
   { path: "/PackageDetails", element: PackageDetails, isPrivate: false },
   { path: "/packages", element: Packages, isPrivate: false },
-
   /* -------- User -------- */
   {
     path: "/user/profile",
@@ -163,6 +163,12 @@ export const allRoutes = [
   {
     path: "/admin/users",
     element: UserManagement,
+    isPrivate: true,
+    role: "admin",
+  },
+  {
+    path: "/admin/layout",
+    element: AdminLayout,
     isPrivate: true,
     role: "admin",
   },
