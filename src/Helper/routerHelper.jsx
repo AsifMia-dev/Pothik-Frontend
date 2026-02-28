@@ -24,6 +24,7 @@ import LoyaltyPoints from "../pages/user/LoyaltyPoints";
 import BlogPost from "../pages/user/BlogPost";
 import PaymentPage from "../pages/user/PaymentPage";
 import CustomPackage from "../pages/user/CustomPackage";
+import Settings from "../pages/user/Settings";
 
 /* ===================== OWNER PAGES ===================== */
 import OwnerDashboard from "../pages/owner/Hotelownerdashboard";
@@ -106,6 +107,12 @@ export const allRoutes = [
     path: "/custom-package",
     element: CustomPackage,
     isPrivate: false,
+    role: "customer"
+  },
+  {
+    path: "/user/settings",
+    element: Settings,
+    isPrivate: true,
     role: "customer"
   },
 

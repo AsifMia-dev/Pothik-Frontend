@@ -205,7 +205,7 @@ const Profile = () => {
     { id: 'loyalty', label: 'Loyalty Points', icon: 'pi-star', path: '/user/loyalty-points' },
     { id: 'listings', label: 'My Listings', icon: 'pi-list', path: null },
     { id: 'payouts', label: 'Payouts', icon: 'pi-wallet', path: null },
-    { id: 'settings', label: 'Settings', icon: 'pi-cog', path: null },
+    { id: 'settings', label: 'Settings', icon: 'pi-cog', path: '/user/settings' },
   ];
 
   return (

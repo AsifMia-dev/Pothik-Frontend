@@ -156,8 +156,11 @@ const PaymentPage = () => {
                 // Fetch user's loyalty points if logged in
                 if (user?.user_id) {
                     try {
-                        const resUser = await api.get(`/user/users/${user.user_id}`);
-                        setLoyaltyPoints(resUser.data?.data?.loyalty_points || 0);
+                        const token = localStorage.getItem('token');
+                        const resLoyalty = await api.get(`/loyalty/balance/${user.user_id}`, {
+                            headers: { Authorization: `Bearer ${token}` },
+                        });
+                        setLoyaltyPoints(resLoyalty.data?.data?.current_balance || 0);
                     } catch (err) {
                         console.log("Could not fetch loyalty points");
                     }
