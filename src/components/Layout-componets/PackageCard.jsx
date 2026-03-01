@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 const PackageCard = ({ 
@@ -9,8 +9,10 @@ const PackageCard = ({
   price, 
   days, 
   startDate,
-  capacity // ✅ receive capacity prop
+  capacity
 }) => {
+  const titleRef = useRef(null);
+  const [isOverflowing, setIsOverflowing] = useState(false);
 
   const getImageUrl = (imagePath) => {
     if (!imagePath) return "https://via.placeholder.com/400x300?text=No+Image";
@@ -30,6 +32,14 @@ const PackageCard = ({
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
+
+  // Check if title text is wider than its container
+  useEffect(() => {
+    const el = titleRef.current;
+    if (el) {
+      setIsOverflowing(el.scrollWidth > el.clientWidth);
+    }
+  }, [title]);
 
   return (
     <div className="bg-[#034D41] dark:bg-[#034D41] rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden flex flex-col h-full border border-gray-200 dark:border-gray-700">
@@ -55,11 +65,21 @@ const PackageCard = ({
 
       {/* Content Section */}
       <div className="p-5 flex flex-col flex-grow">
-        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 line-clamp-2 min-h-[3.5rem]">
-          {title || 'Untitled Package'}
-        </h3>
 
-        <p className="text-gray-600 dark:text-gray-300 text-sm mb-2 line-clamp-3 flex-grow">
+        {/* Title — marquee only if text overflows */}
+        <div className="overflow-hidden w-full mb-2 min-h-[1.75rem]">
+          <h3
+            ref={titleRef}
+            className={`text-xl font-bold text-gray-900 dark:text-white whitespace-nowrap ${
+              isOverflowing ? "animate-marquee" : ""
+            }`}
+          >
+            {title || 'Untitled Package'}
+          </h3>
+        </div>
+
+        {/* 1-line Description */}
+        <p className="text-gray-600 dark:text-gray-300 text-sm mb-2 line-clamp-1 flex-grow">
           {description || 'No description available'}
         </p>
 
@@ -95,7 +115,6 @@ const PackageCard = ({
           >
             View Details
           </Link>
-
         </div>
       </div>
     </div>
