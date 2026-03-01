@@ -200,7 +200,7 @@ const Packages = () => {
               </div>
             ) : (
               <>
-                {/* Results count */}
+                {/* Results count — above the grid */}
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                   Showing {startIndex + 1}–{Math.min(startIndex + ITEMS_PER_PAGE, filteredPackages.length)} of {filteredPackages.length} packages
                 </p>
