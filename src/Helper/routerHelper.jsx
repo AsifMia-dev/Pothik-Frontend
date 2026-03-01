@@ -152,57 +152,41 @@ export const allRoutes = [
 
   /* -------- Admin -------- */
   {
-    path: "/admin/dashboard",
-    element: AdminDashboard,
-    isPrivate: true,
-    role: "admin",
-  },
-  {
-    path: "/admin/blogs",
-    element: BlogManagement,
-    isPrivate: true,
-    role: "admin",
-  },
-  {
-    path: "/admin/bookings",
-    element: BookingManagement,
-    isPrivate: true,
-    role: "admin",
-  },
-  {
-    path: "/admin/destinations",
-    element: DestinationManagement,
-    isPrivate: true,
-    role: "admin",
-  },
-  {
-    path: "/admin/packages",
-    element: PackageManagement,
-    isPrivate: true,
-    role: "admin",
-  },
-  {
-    path: "/admin/users",
-    element: UserManagement,
-    isPrivate: true,
-    role: "admin",
-  },
-  {
-    path: "/admin/layout",
-    element: AdminLayout,
-    isPrivate: true,
-    role: "admin",
-  },
+  path: "/admin",
+  element: AdminLayout,
+  isPrivate: true,
+  role: "admin",
+  children: [
+    { path: "dashboard", element: AdminDashboard },
+    { path: "blogs", element: BlogManagement },
+    { path: "bookings", element: BookingManagement },
+    { path: "destinations", element: DestinationManagement },
+    { path: "packages", element: PackageManagement },
+    { path: "users", element: UserManagement },
+  ]
+},
+
 ];
 
 export const renderRouterElement = (route) => {
   const Component = route.element;
+
+  if (route.children) {
+    return (
+      <PrivateRoute role={route.role}>
+        <Component />
+      </PrivateRoute>
+    );
+  }
+
   if (route.isPrivate) {
     return (
       <PrivateRoute role={route.role}>
         <Component />
       </PrivateRoute>
-    )
+    );
   }
+
   return <Component />;
-}
+};
+
