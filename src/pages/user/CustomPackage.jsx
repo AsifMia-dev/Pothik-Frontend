@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, Navigate } from "react-router-dom";
+import Layout from "../../components/Layout";
 import {
   Calendar, Users, MapPin, Car, Bus, Bike,
   Hotel, UserCheck, ChevronDown, Plus, Minus, Check, Loader2,
@@ -367,6 +368,7 @@ const CustomPackage = () => {
   // ─── render ──────────────────────────────────────────────────────────────
   return (
     <>
+    <Layout>
       {modalHotel && (
         <RoomModal
           hotel={modalHotel}
@@ -770,6 +772,7 @@ const CustomPackage = () => {
 
         </div>
       </section>
+      </Layout>
     </>
   );
 };
