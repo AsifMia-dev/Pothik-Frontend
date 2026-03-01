@@ -141,6 +141,15 @@ const TopDestination = () => {
             ))}
           </div>
         )}
+        {/* View All Link */}
+        <div className="flex justify-center mt-8">
+          <a
+            href="/destinations"
+            className="px-6 py-2.5 border border-primary text-primary text-sm font-semibold rounded-lg hover:bg-primary hover:text-white transition-colors duration-200"
+          >
+            View All Destinations →
+          </a>
+        </div>
       </div>
     </section>
   );
