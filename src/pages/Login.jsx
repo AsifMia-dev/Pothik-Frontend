@@ -45,6 +45,11 @@ const Login = () => {
         // Store token in localStorage
         sessionStorage.setItem('token', token);
 
+        // Store user information
+        sessionStorage.setItem('user_id', userData.user_id);
+        sessionStorage.setItem('user_name', userData.full_name);
+        sessionStorage.setItem('user', JSON.stringify(userData));
+
         // Store user in context
         login(userData);
     }
@@ -74,13 +79,16 @@ const Login = () => {
         const userData = response.data.data.user;
         const token = response.data.data.token;
 
-        // Store token in localStorage
-        localStorage.setItem('token', token);
+        // Store token
+        sessionStorage.setItem('token', token);
+
+        // Store user information
+        sessionStorage.setItem('user_id', userData.user_id);
+        sessionStorage.setItem('user_name', userData.full_name);
+        sessionStorage.setItem('user', JSON.stringify(userData));
 
         // Store user in context
         login(userData);
-
-        // Redirect to home page
         navigate('/');
       }
     } catch (err) {

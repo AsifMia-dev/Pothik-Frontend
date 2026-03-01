@@ -42,6 +42,9 @@ const Packages = () => {
 
   // Filter logic
   const filteredPackages = packages.filter((pkg) => {
+    // Never show custom packages on this page
+    if (pkg.description === "custom") return false;
+
     const matchesSearch = search
       ? pkg.name?.toLowerCase().includes(search.toLowerCase())
       : true;
@@ -147,7 +150,7 @@ const Packages = () => {
                 <p className="text-lg text-red-600 dark:text-red-400 font-semibold">Error Loading Packages</p>
                 <p className="text-sm mt-2 text-gray-700 dark:text-gray-300">{error}</p>
               </div>
-            ) : packages.length === 0 ? (
+            ) : packages.filter(p => p.description !== "custom").length === 0 ? (
               <div className="text-center mt-8 p-8 bg-blue-50 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700 rounded-lg">
                 <p className="text-lg font-semibold text-gray-800 dark:text-gray-200">No packages available</p>
                 <p className="text-sm mt-2 text-gray-600 dark:text-gray-400">Please check back later</p>
@@ -175,7 +178,7 @@ const Packages = () => {
                     price={pkg.base_price}
                     days={pkg.duration_days}
                     startDate={pkg.Start_Date}
-                    capacity={pkg.capacity} // ✅ pass capacity prop
+                    capacity={pkg.capacity}
                   />
                 ))}
               </div>
