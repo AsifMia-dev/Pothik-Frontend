@@ -5,6 +5,7 @@ import { auth, googleProvider } from '../firebase.config';
 import { AuthContext } from '../context/AuthContext';
 import API from '../Helper/baseUrl.helper';
 import { useEffect } from 'react';
+import Layout from '../components/Layout';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -45,6 +46,11 @@ const Login = () => {
         // Store token in localStorage
         sessionStorage.setItem('token', token);
 
+        // Store user information
+        sessionStorage.setItem('user_id', userData.user_id);
+        sessionStorage.setItem('user_name', userData.full_name);
+        sessionStorage.setItem('user', JSON.stringify(userData));
+
         // Store user in context
         login(userData);
     }
@@ -74,13 +80,16 @@ const Login = () => {
         const userData = response.data.data.user;
         const token = response.data.data.token;
 
-        // Store token in localStorage
-        localStorage.setItem('token', token);
+        // Store token
+        sessionStorage.setItem('token', token);
+
+        // Store user information
+        sessionStorage.setItem('user_id', userData.user_id);
+        sessionStorage.setItem('user_name', userData.full_name);
+        sessionStorage.setItem('user', JSON.stringify(userData));
 
         // Store user in context
         login(userData);
-
-        // Redirect to home page
         navigate('/');
       }
     } catch (err) {
@@ -110,6 +119,7 @@ const Login = () => {
   }, [user, navigate]);
 
   return (
+    <Layout>
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-6 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full bg-white p-6 rounded-xl shadow-lg">
         <div className="mb-4">
@@ -258,6 +268,7 @@ const Login = () => {
         </form>
       </div>
     </div>
+    </Layout>
   );
 };
 

@@ -3,6 +3,8 @@ import Layout from "../../components/Layout";
 import PackageCard from "../../components/Layout-componets/PackageCard";
 import api from "../../Helper/baseUrl.helper";
 
+const ITEMS_PER_PAGE = 6;
+
 const Packages = () => {
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,22 +14,20 @@ const Packages = () => {
   const [search, setSearch] = useState("");
   const [duration, setDuration] = useState("");
 
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+
   // Fetch packages from backend
   useEffect(() => {
     const fetchPackages = async () => {
       try {
         setLoading(true);
         setError(null);
-        
         const timestamp = new Date().getTime();
         const res = await api.get(`/package/packages?ts=${timestamp}`);
-        
-        // Your API returns: { success: true, count: 1, data: [...] }
         const packagesData = res.data?.data || [];
-        
         console.log('Packages loaded:', packagesData.length);
         setPackages(packagesData);
-        
       } catch (error) {
         console.error("Failed to fetch packages:", error);
         setError(error.response?.data?.message || error.message || "Failed to load packages");
@@ -36,12 +36,18 @@ const Packages = () => {
         setLoading(false);
       }
     };
-
     fetchPackages();
   }, []);
 
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, duration]);
+
   // Filter logic
   const filteredPackages = packages.filter((pkg) => {
+    if (pkg.description === "custom") return false;
+
     const matchesSearch = search
       ? pkg.name?.toLowerCase().includes(search.toLowerCase())
       : true;
@@ -58,6 +64,35 @@ const Packages = () => {
 
     return matchesSearch && matchesDuration;
   });
+
+  // ── Pagination derived values ─────────────────────────────────────────────
+  const totalPages   = Math.max(1, Math.ceil(filteredPackages.length / ITEMS_PER_PAGE));
+  const safePage     = Math.min(currentPage, totalPages);
+  const startIndex   = (safePage - 1) * ITEMS_PER_PAGE;
+  const currentItems = filteredPackages.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  const goToPage = (page) => {
+    const clamped = Math.max(1, Math.min(page, totalPages));
+    setCurrentPage(clamped);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const getPageNumbers = () => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    const pages = new Set([1, totalPages, safePage]);
+    if (safePage - 1 > 1)          pages.add(safePage - 1);
+    if (safePage + 1 < totalPages)  pages.add(safePage + 1);
+
+    const sorted = [...pages].sort((a, b) => a - b);
+    const result = [];
+    for (let i = 0; i < sorted.length; i++) {
+      if (i > 0 && sorted[i] - sorted[i - 1] > 1) result.push("...");
+      result.push(sorted[i]);
+    }
+    return result;
+  };
 
   const clearFilters = () => {
     setSearch("");
@@ -147,7 +182,7 @@ const Packages = () => {
                 <p className="text-lg text-red-600 dark:text-red-400 font-semibold">Error Loading Packages</p>
                 <p className="text-sm mt-2 text-gray-700 dark:text-gray-300">{error}</p>
               </div>
-            ) : packages.length === 0 ? (
+            ) : packages.filter(p => p.description !== "custom").length === 0 ? (
               <div className="text-center mt-8 p-8 bg-blue-50 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700 rounded-lg">
                 <p className="text-lg font-semibold text-gray-800 dark:text-gray-200">No packages available</p>
                 <p className="text-sm mt-2 text-gray-600 dark:text-gray-400">Please check back later</p>
@@ -164,21 +199,86 @@ const Packages = () => {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {filteredPackages.map((pkg) => (
-                  <PackageCard
-                    key={pkg.package_id}
-                    packageId={pkg.package_id}
-                    title={pkg.name}
-                    description={pkg.description}
-                    image={pkg.image}
-                    price={pkg.base_price}
-                    days={pkg.duration_days}
-                    startDate={pkg.Start_Date}
-                    capacity={pkg.capacity} // ✅ pass capacity prop
-                  />
-                ))}
-              </div>
+              <>
+                {/* Results count */}
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                  Showing {startIndex + 1}–{Math.min(startIndex + ITEMS_PER_PAGE, filteredPackages.length)} of {filteredPackages.length} packages
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {currentItems.map((pkg) => (
+                    <PackageCard
+                      key={pkg.package_id}
+                      packageId={pkg.package_id}
+                      title={pkg.name}
+                      description={pkg.description}
+                      image={pkg.image}
+                      price={pkg.base_price}
+                      days={pkg.duration_days}
+                      startDate={pkg.Start_Date}
+                      capacity={pkg.capacity}
+                    />
+                  ))}
+                </div>
+
+                {/* ── Pagination ── */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center gap-1 mt-10">
+
+                    {/* LEFT */}
+                    <button
+                      disabled={safePage === 1}
+                      onClick={() => goToPage(safePage - 1)}
+                      className={`flex size-10 items-center justify-center rounded-full transition-colors
+                        ${safePage === 1
+                          ? "opacity-50 cursor-not-allowed"
+                          : "hover:bg-slate-200 dark:hover:bg-slate-800"}`}
+                    >
+                      <svg className={`w-5 h-5 ${safePage === 1 ? "text-slate-400" : "text-slate-600 dark:text-slate-400"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+
+                    {/* PAGE NUMBERS */}
+                    {getPageNumbers().map((item, idx) =>
+                      item === "..." ? (
+                        <span
+                          key={`ellipsis-${idx}`}
+                          className="text-sm font-medium flex size-10 items-center justify-center text-slate-500 dark:text-slate-400 rounded-full"
+                        >
+                          ...
+                        </span>
+                      ) : (
+                        <button
+                          key={item}
+                          onClick={() => goToPage(item)}
+                          className={`text-sm font-bold flex size-10 items-center justify-center rounded-full transition-colors
+                            ${item === safePage
+                              ? "text-white bg-primary"
+                              : "text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800"}`}
+                        >
+                          {item}
+                        </button>
+                      )
+                    )}
+
+                    {/* RIGHT */}
+                    <button
+                      disabled={safePage === totalPages}
+                      onClick={() => goToPage(safePage + 1)}
+                      className={`flex size-10 items-center justify-center rounded-full transition-colors
+                        ${safePage === totalPages
+                          ? "opacity-50 cursor-not-allowed"
+                          : "hover:bg-slate-200 dark:hover:bg-slate-800"}`}
+                    >
+                      <svg className={`w-5 h-5 ${safePage === totalPages ? "text-slate-400" : "text-slate-600 dark:text-slate-400"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>

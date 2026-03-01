@@ -4,6 +4,7 @@ import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase.config';
 import API from '../Helper/baseUrl.helper';
 import { AuthContext } from '../context/AuthContext';
+import Layout from '../components/Layout';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -118,6 +119,7 @@ const Register = () => {
   };
 
   return (
+    <Layout>
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-4 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl w-full bg-white p-6 rounded-xl shadow-lg">
         <div className="mb-3">
@@ -331,6 +333,7 @@ const Register = () => {
         </form>
       </div>
     </div>
+    </Layout>
   );
 };
 

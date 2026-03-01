@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import api from "../../Helper/baseUrl.helper";
 
@@ -95,26 +96,28 @@ function Hero() {
         </h1>
 
         {/* CTA Button */}
-        <button
-          className="
-            mt-10
-            inline-flex items-center gap-3
-            bg-gradient-to-r from-teal-500 to-blue-600
-            text-white
-            text-lg font-semibold
-            px-12 py-4
-            rounded-2xl
-            shadow-xl
-            transition-all duration-300 ease-in-out
-            hover:-translate-y-1
-            hover:shadow-2xl
-            hover:cursor-pointer
-            active:scale-95
-          "
-        >
-          Start Custom Planning
-          <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1 "/>
-        </button>
+        <Link to="/custom-package" className="group inline-block">
+          <button
+            className="
+              mt-10
+              inline-flex items-center gap-3
+              bg-gradient-to-r from-teal-500 to-blue-600
+              text-white
+              text-lg font-semibold
+              px-12 py-4
+              rounded-2xl
+              shadow-xl
+              transition-all duration-300 ease-in-out
+              hover:-translate-y-1
+              hover:shadow-2xl
+              hover:cursor-pointer
+              active:scale-95
+            "
+          >
+            Start Custom Planning
+            <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1 "/>
+          </button>
+        </Link>
 
         <p className="mt-6 text-sm tracking-widest text-gray-200 uppercase">
           Powered by Pothik

@@ -73,34 +73,20 @@ const NavBar = () => {
       {/* Auth Buttons */}
       <div className="flex gap-2 items-center">
         {user ? (
-          <>
-            <Link
-              to="/user/profile"
-              className="flex items-center gap-2 text-sm font-medium text-deep-teal dark:text-off-white mr-2 hover:text-[#034D41] dark:hover:text-primary transition-colors"
-            >
-              <span className="w-8 h-8 bg-[#034D41] text-white rounded-full flex items-center justify-center text-sm font-bold">
-                {user.full_name?.charAt(0)?.toUpperCase() || 'U'}
-              </span>
-              {user.full_name}
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="bg-red-600 text-sm text-white font-medium px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
-            >
-              Logout
-            </button>
-          </>
+          <Link
+            to="/user/profile"
+            className="flex items-center gap-2 text-sm font-medium text-deep-teal dark:text-off-white hover:text-[#034D41] dark:hover:text-primary transition-colors"
+          >
+            <span className="w-8 h-8 bg-[#034D41] text-white rounded-full flex items-center justify-center text-sm font-bold">
+              {user.full_name?.charAt(0)?.toUpperCase() || 'U'}
+            </span>
+            {user.full_name}
+          </Link>
         ) : (
           <>
             <Link to="/login">
-              <Button
-                label="Login"
-                className="p-button-text text-sm font-medium text-deep-teal hover:text-primary transition-colors"
-              />
-            </Link>
-            <Link to="/register">
               <button className="bg-[#034D41] text-sm text-white font-medium px-4 py-2 rounded-lg hover:bg-[#023830] transition-colors">
-                Sign Up
+                Login
               </button>
             </Link>
           </>

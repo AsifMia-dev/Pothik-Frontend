@@ -21,7 +21,7 @@ const Footer = () => {
               <h2 className="text-white font-bold text-light">POTHIK</h2>
             </div>
             <p className="mt-4 text-sm text-slate-500 ">
-              Your ultimate travel companion for exploring the world.
+              Changing the Game for Tourism in Bangladesh.
             </p>
           </div>
 

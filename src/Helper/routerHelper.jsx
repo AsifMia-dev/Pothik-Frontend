@@ -108,7 +108,7 @@ export const allRoutes = [
   {
     path: "/custom-package",
     element: CustomPackage,
-    isPrivate: false,
+    isPrivate: true,
     role: "customer"
   },
   {
