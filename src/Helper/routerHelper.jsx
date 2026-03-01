@@ -29,6 +29,11 @@ import MyListings from "../pages/user/MyListings";
 import Payouts from "../pages/user/Payouts";
 
 /* ===================== OWNER PAGES ===================== */
+import OwnerLayout from "../pages/owner/OwnerLayout";
+import PackageOwnerDashboard from "../pages/owner/Dashboard";
+import OwnerCalendar from "../pages/owner/Calendar";
+import OwnerRatings from "../pages/owner/Ratings";
+import OwnerProfile from "../pages/owner/Profile";
 import OwnerDashboard from "../pages/owner/Hotelownerdashboard";
 import OwnerBookings from "../pages/owner/Transportownerdashboard";
 import OwnerPackages from "../pages/owner/Tourguidedashboard";
@@ -132,39 +137,37 @@ export const allRoutes = [
 
   /* -------- Owner -------- */
   {
-    path: "/owner/Hotelownerdashboard",
-    element: OwnerDashboard,
+    path: "/owner",
+    element: OwnerLayout,
     isPrivate: true,
-    role: "owner"
-  },
-  {
-    path: "/owner/Transportownerdashboard",
-    element: OwnerBookings,
-    isPrivate: true,
-    role: "owner"
-  },
-  {
-    path: "/owner/Tourguidedashboard",
-    element: OwnerPackages,
-    isPrivate: true,
-    role: "owner"
+    role: "owner",
+    children: [
+      { path: "dashboard", element: PackageOwnerDashboard },
+      { path: "calendar", element: OwnerCalendar },
+      { path: "ratings", element: OwnerRatings },
+      { path: "profile", element: OwnerProfile },
+      { path: "listings", element: OwnerDashboard },
+      { path: "messages", element: OwnerBookings },
+      { path: "earnings", element: OwnerPackages },
+      { path: "settings", element: OwnerPackages },
+    ]
   },
 
   /* -------- Admin -------- */
   {
-  path: "/admin",
-  element: AdminLayout,
-  isPrivate: true,
-  role: "admin",
-  children: [
-    { path: "dashboard", element: AdminDashboard },
-    { path: "blogs", element: BlogManagement },
-    { path: "bookings", element: BookingManagement },
-    { path: "destinations", element: DestinationManagement },
-    { path: "packages", element: PackageManagement },
-    { path: "users", element: UserManagement },
-  ]
-},
+    path: "/admin",
+    element: AdminLayout,
+    isPrivate: true,
+    role: "admin",
+    children: [
+      { path: "dashboard", element: AdminDashboard },
+      { path: "blogs", element: BlogManagement },
+      { path: "bookings", element: BookingManagement },
+      { path: "destinations", element: DestinationManagement },
+      { path: "packages", element: PackageManagement },
+      { path: "users", element: UserManagement },
+    ]
+  },
 
 ];
 
