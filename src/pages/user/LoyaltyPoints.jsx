@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import axios from 'axios';
-import Layout from '../../components/Layout';
+import UserDashboardLayout from '../../components/UserDashboardLayout';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -104,205 +104,201 @@ const LoyaltyPoints = () => {
 
   if (loading) {
     return (
-      <Layout>
-        <main className="flex-1 bg-slate-50 dark:bg-background-dark min-h-screen">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
-            <div className="animate-spin inline-block w-8 h-8 border-4 border-amber-400 border-t-transparent rounded-full"></div>
-            <p className="mt-4 text-slate-500 dark:text-slate-400">Loading your loyalty data...</p>
-          </div>
-        </main>
-      </Layout>
+      <UserDashboardLayout>
+        <div className="py-12 text-center">
+          <div className="animate-spin inline-block w-8 h-8 border-4 border-amber-400 border-t-transparent rounded-full"></div>
+          <p className="mt-4 text-slate-500 dark:text-slate-400">Loading your loyalty data...</p>
+        </div>
+      </UserDashboardLayout>
     );
   }
 
   return (
-    <Layout>
-      <main className="flex-1 bg-slate-50 dark:bg-background-dark min-h-screen">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <UserDashboardLayout>
+      <div className="space-y-6">
 
-          {/* Page Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-[#0f1c35] dark:text-white tracking-tight">
-              My Loyalty Points
-            </h1>
-            <p className="mt-2 text-slate-500 dark:text-slate-400">
-              Track your rewards and see your transaction history.
-            </p>
-          </div>
+        {/* Page Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">
+            My Loyalty Points
+          </h1>
+          <p className="mt-2 text-gray-500">
+            Track your rewards and see your transaction history.
+          </p>
+        </div>
 
-          {/* Balance Card */}
-          <div className="bg-[#0f1c35] rounded-2xl p-6 md:p-8 mb-10 relative overflow-hidden">
-            {/* Decorative gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[#1a2847] to-[#0f1c35] opacity-50"></div>
+        {/* Balance Card */}
+        <div className="bg-[#0f1c35] rounded-2xl p-6 md:p-8 mb-10 relative overflow-hidden">
+          {/* Decorative gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#1a2847] to-[#0f1c35] opacity-50"></div>
 
-            <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between">
-              <div className="flex-1">
-                <p className="text-slate-400 text-sm uppercase tracking-wider mb-2">Current Balance</p>
-                <h2 className="text-4xl md:text-5xl font-bold text-white mb-2">
-                  {currentBalance.toLocaleString()} Points
-                </h2>
-                <p className="text-amber-400 font-medium">{tier.name} Member</p>
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between">
+            <div className="flex-1">
+              <p className="text-slate-400 text-sm uppercase tracking-wider mb-2">Current Balance</p>
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-2">
+                {currentBalance.toLocaleString()} Points
+              </h2>
+              <p className="text-amber-400 font-medium">{tier.name} Member</p>
 
-                {/* Progress Bar */}
-                {tier.next && (
-                  <div className="mt-6">
-                    <div className="flex justify-between text-sm text-slate-400 mb-2">
-                      <span>Progress to {tier.next}</span>
-                      <span>{progressToNext.toLocaleString()} points to go</span>
-                    </div>
-                    <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-full transition-all duration-500"
-                        style={{ width: `${Math.min(progressPercentage, 100)}%` }}
-                      ></div>
-                    </div>
+              {/* Progress Bar */}
+              {tier.next && (
+                <div className="mt-6">
+                  <div className="flex justify-between text-sm text-slate-400 mb-2">
+                    <span>Progress to {tier.next}</span>
+                    <span>{progressToNext.toLocaleString()} points to go</span>
                   </div>
-                )}
-              </div>
+                  <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-full transition-all duration-500"
+                      style={{ width: `${Math.min(progressPercentage, 100)}%` }}
+                    ></div>
+                  </div>
+                </div>
+              )}
+            </div>
 
-              {/* Stats */}
-              <div className="mt-6 md:mt-0 md:ml-8 flex gap-6">
-                <div className="text-center">
-                  <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">Total Earned</p>
-                  <p className="text-green-400 text-xl font-bold">{totalEarned.toLocaleString()}</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">Total Spent</p>
-                  <p className="text-orange-400 text-xl font-bold">{totalSpent.toLocaleString()}</p>
-                </div>
+            {/* Stats */}
+            <div className="mt-6 md:mt-0 md:ml-8 flex gap-6">
+              <div className="text-center">
+                <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">Total Earned</p>
+                <p className="text-green-400 text-xl font-bold">{totalEarned.toLocaleString()}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">Total Spent</p>
+                <p className="text-orange-400 text-xl font-bold">{totalSpent.toLocaleString()}</p>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Points History Section */}
-          <div className="bg-white dark:bg-card-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-            {/* Section Header with Tabs */}
-            <div className="p-4 md:p-6 border-b border-slate-200 dark:border-slate-700">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <h3 className="text-xl font-bold text-slate-800 dark:text-white">Points History</h3>
+        {/* Points History Section */}
+        <div className="bg-white dark:bg-card-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+          {/* Section Header with Tabs */}
+          <div className="p-4 md:p-6 border-b border-slate-200 dark:border-slate-700">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <h3 className="text-xl font-bold text-slate-800 dark:text-white">Points History</h3>
 
-                <div className="flex flex-col sm:flex-row gap-4">
-                  {/* Filter Tabs */}
-                  <div className="inline-flex bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
-                    <button
-                      className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${activeTab === 'all'
-                        ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                        }`}
-                      onClick={() => { setActiveTab('all'); setCurrentPage(1); }}
-                    >
-                      All Transactions
-                    </button>
-                    <button
-                      className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${activeTab === 'earned'
-                        ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                        }`}
-                      onClick={() => { setActiveTab('earned'); setCurrentPage(1); }}
-                    >
-                      Earned
-                    </button>
-                    <button
-                      className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${activeTab === 'redeemed'
-                        ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                        }`}
-                      onClick={() => { setActiveTab('redeemed'); setCurrentPage(1); }}
-                    >
-                      Redeemed
-                    </button>
-                  </div>
-
-                  {/* Sort Dropdown */}
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="px-4 py-2 text-sm font-medium bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-[#034D41] outline-none"
+              <div className="flex flex-col sm:flex-row gap-4">
+                {/* Filter Tabs */}
+                <div className="inline-flex bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
+                  <button
+                    className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${activeTab === 'all'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                      }`}
+                    onClick={() => { setActiveTab('all'); setCurrentPage(1); }}
                   >
-                    <option value="newest">Sort by: Newest</option>
-                    <option value="oldest">Sort by: Oldest</option>
-                  </select>
+                    All Transactions
+                  </button>
+                  <button
+                    className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${activeTab === 'earned'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                      }`}
+                    onClick={() => { setActiveTab('earned'); setCurrentPage(1); }}
+                  >
+                    Earned
+                  </button>
+                  <button
+                    className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${activeTab === 'redeemed'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                      }`}
+                    onClick={() => { setActiveTab('redeemed'); setCurrentPage(1); }}
+                  >
+                    Redeemed
+                  </button>
                 </div>
+
+                {/* Sort Dropdown */}
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="px-4 py-2 text-sm font-medium bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-[#034D41] outline-none"
+                >
+                  <option value="newest">Sort by: Newest</option>
+                  <option value="oldest">Sort by: Oldest</option>
+                </select>
               </div>
             </div>
+          </div>
 
-            {/* Transaction Table */}
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-slate-50 dark:bg-slate-800">
+          {/* Transaction Table */}
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-slate-50 dark:bg-slate-800">
+                <tr>
+                  <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Date</th>
+                  <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Description</th>
+                  <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Type</th>
+                  <th className="text-right px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Points</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                {paginatedTransactions.length === 0 ? (
                   <tr>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Date</th>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Description</th>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Type</th>
-                    <th className="text-right px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Points</th>
+                    <td colSpan="4" className="px-6 py-12 text-center text-slate-400 dark:text-slate-500">
+                      No transactions found.
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                  {paginatedTransactions.length === 0 ? (
-                    <tr>
-                      <td colSpan="4" className="px-6 py-12 text-center text-slate-400 dark:text-slate-500">
-                        No transactions found.
+                ) : (
+                  paginatedTransactions.map((transaction) => (
+                    <tr key={transaction.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                      <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300 whitespace-nowrap">
+                        {transaction.date}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-slate-800 dark:text-white font-medium">
+                        {transaction.description}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${transaction.type === 'earned'
+                          ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                          : 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
+                          }`}>
+                          {transaction.type === 'earned' ? 'Earned' : 'Redeemed'}
+                        </span>
+                      </td>
+                      <td className={`px-6 py-4 text-sm font-bold text-right whitespace-nowrap ${transaction.points > 0
+                        ? 'text-green-600 dark:text-green-400'
+                        : 'text-orange-600 dark:text-orange-400'
+                        }`}>
+                        {transaction.points > 0 ? '+' : ''}{transaction.points.toLocaleString()}
                       </td>
                     </tr>
-                  ) : (
-                    paginatedTransactions.map((transaction) => (
-                      <tr key={transaction.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                        <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300 whitespace-nowrap">
-                          {transaction.date}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-slate-800 dark:text-white font-medium">
-                          {transaction.description}
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${transaction.type === 'earned'
-                            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                            : 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
-                            }`}>
-                            {transaction.type === 'earned' ? 'Earned' : 'Redeemed'}
-                          </span>
-                        </td>
-                        <td className={`px-6 py-4 text-sm font-bold text-right whitespace-nowrap ${transaction.points > 0
-                          ? 'text-green-600 dark:text-green-400'
-                          : 'text-orange-600 dark:text-orange-400'
-                          }`}>
-                          {transaction.points > 0 ? '+' : ''}{transaction.points.toLocaleString()}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Pagination */}
-            {sortedTransactions.length > 0 && (
-              <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                  Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, sortedTransactions.length)} of {sortedTransactions.length} results
-                </p>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
-                    className="px-4 py-2 text-sm font-medium border border-slate-200 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    Previous
-                  </button>
-                  <button
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                    disabled={currentPage === totalPages}
-                    className="px-4 py-2 text-sm font-medium border border-slate-200 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
-            )}
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
 
+          {/* Pagination */}
+          {sortedTransactions.length > 0 && (
+            <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, sortedTransactions.length)} of {sortedTransactions.length} results
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 text-sm font-medium border border-slate-200 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 text-sm font-medium border border-slate-200 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </div>
-      </main>
-    </Layout>
+
+      </div>
+    </UserDashboardLayout>
   );
 };
 

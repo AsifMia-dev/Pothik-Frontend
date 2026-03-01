@@ -25,6 +25,8 @@ import BlogPost from "../pages/user/BlogPost";
 import PaymentPage from "../pages/user/PaymentPage";
 import CustomPackage from "../pages/user/CustomPackage";
 import Settings from "../pages/user/Settings";
+import MyListings from "../pages/user/MyListings";
+import Payouts from "../pages/user/Payouts";
 
 /* ===================== OWNER PAGES ===================== */
 import OwnerDashboard from "../pages/owner/Hotelownerdashboard";
@@ -112,6 +114,18 @@ export const allRoutes = [
   {
     path: "/user/settings",
     element: Settings,
+    isPrivate: true,
+    role: "customer"
+  },
+  {
+    path: "/user/my-listings",
+    element: MyListings,
+    isPrivate: true,
+    role: "customer"
+  },
+  {
+    path: "/user/payouts",
+    element: Payouts,
     isPrivate: true,
     role: "customer"
   },
