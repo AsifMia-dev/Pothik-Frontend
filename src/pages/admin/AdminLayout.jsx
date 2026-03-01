@@ -5,6 +5,9 @@ const AdminLayout = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
+    // Clear both sessionStorage and localStorage
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("authUser");
     localStorage.removeItem("token");
     localStorage.removeItem("role");
     navigate("/login");
@@ -34,8 +37,7 @@ const AdminLayout = () => {
                 key={link.path}
                 to={link.path}
                 className={({ isActive }) =>
-                  `px-6 py-3 text-sm font-medium hover:bg-gray-700 ${
-                    isActive ? "bg-gray-700" : ""
+                  `px-6 py-3 text-sm font-medium hover:bg-gray-700 ${isActive ? "bg-gray-700" : ""
                   }`
                 }
               >

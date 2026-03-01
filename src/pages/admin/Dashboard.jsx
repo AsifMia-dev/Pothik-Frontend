@@ -34,11 +34,11 @@ const Dashboard = () => {
     setLoading(true);
     setError("");
     try {
-      const token = localStorage.getItem("token");
-      const role = localStorage.getItem("role");
+      // Use sessionStorage (where Login page saves the token)
+      const token = sessionStorage.getItem("token") || localStorage.getItem("token");
 
-      if (!token || role !== "admin") {
-        navigate("/login");
+      if (!token) {
+        setError("Authentication required. Please login again.");
         return;
       }
 

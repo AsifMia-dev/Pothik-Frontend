@@ -6,7 +6,7 @@ const UserManagement = () => {
 
   const fetchUsers = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token") || localStorage.getItem("token");
 
       const res = await axios.get(
         "http://localhost:5000/api/admin/users",
@@ -23,7 +23,7 @@ const UserManagement = () => {
 
   const handleDelete = async (id) => {
     try {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token") || localStorage.getItem("token");
 
       await axios.delete(
         `http://localhost:5000/api/admin/users/${id}`,

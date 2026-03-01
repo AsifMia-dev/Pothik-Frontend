@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import api from "../../Helper/baseUrl.helper";
 
 const BlogManagement = () => {
-  const navigate = useNavigate();
-
   const [blogs, setBlogs] = useState([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -20,15 +17,8 @@ const BlogManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const blogsPerPage = 5;
 
-  const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
-
-  // Protect route
-  useEffect(() => {
-    if (!token || role !== "admin") {
-      navigate("/login");
-    }
-  }, [navigate, token, role]);
+  // Get token from sessionStorage (where Login saves it)
+  const token = sessionStorage.getItem("token") || localStorage.getItem("token");
 
   // Fetch blogs
   const fetchBlogs = async () => {
@@ -265,11 +255,10 @@ const BlogManagement = () => {
             <button
               key={index}
               onClick={() => setCurrentPage(index + 1)}
-              className={`px-3 py-1 rounded-lg ${
-                currentPage === index + 1
+              className={`px-3 py-1 rounded-lg ${currentPage === index + 1
                   ? "bg-blue-600 text-white"
                   : "bg-gray-300"
-              }`}
+                }`}
             >
               {index + 1}
             </button>
