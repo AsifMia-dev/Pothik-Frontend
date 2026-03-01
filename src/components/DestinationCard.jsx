@@ -11,17 +11,12 @@ const DestinationCard = ({
   image,
   spots = [],
 }) => {
-  // Extract filename from full path and construct proper URL
   const getImageUrl = (imagePath) => {
     if (!imagePath) return FALLBACK_IMAGE;
-    
-    // If it's already a full URL, return as is
     if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
       return imagePath;
     }
-    
-    // Extract just the filename from the full path
-    const filename = imagePath.split(/[\\/]/).pop(); // Handles both / and \
+    const filename = imagePath.split(/[\\/]/).pop();
     return `http://localhost:5000/uploads/destinations/${filename}`;
   };
 
@@ -48,7 +43,7 @@ const DestinationCard = ({
       <div className="flex flex-1 flex-col p-4">
         <h3 className="text-lg font-bold line-clamp-1">{name}</h3>
 
-        <p className="mt-2 flex-1 text-sm text-slate-600 dark:text-slate-300 line-clamp-3">
+        <p className="mt-2 flex-1 text-sm text-slate-600 dark:text-slate-300 line-clamp-1">
           {description}
         </p>
 

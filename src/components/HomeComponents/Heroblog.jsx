@@ -1,26 +1,26 @@
-import React, { useEffect, useState, useRef } from "react";
-import Card from "../../components/DestinationCard";
+import React, { useEffect, useState } from "react";
+import BlogCard from "../BlogCard";
 import api from "../../Helper/baseUrl.helper";
 
-const TopDestination = () => {
-  const [destinations, setDestinations] = useState([]);
+const HeroBlog = () => {
+  const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [visibleCount, setVisibleCount] = useState(3);
 
   useEffect(() => {
-    const fetchDestinations = async () => {
+    const fetchBlogs = async () => {
       try {
-        const res = await api.get("/destination/destinations");
-        setDestinations(res.data?.destinations || []);
+        const res = await api.get("/blog/blogs");
+        setBlogs(res.data?.blogs || []);
       } catch (error) {
-        console.error("Failed to fetch destinations:", error);
-        setDestinations([]);
+        console.error("Failed to fetch blogs:", error);
+        setBlogs([]);
       } finally {
         setLoading(false);
       }
     };
-    fetchDestinations();
+    fetchBlogs();
   }, []);
 
   // Responsive visible count
@@ -35,12 +35,12 @@ const TopDestination = () => {
     return () => window.removeEventListener("resize", updateVisible);
   }, []);
 
-  // Clamp currentIndex when visibleCount changes
+  // Clamp currentIndex when visibleCount or blogs change
   useEffect(() => {
-    setCurrentIndex((i) => Math.min(i, Math.max(0, destinations.length - visibleCount)));
-  }, [visibleCount, destinations.length]);
+    setCurrentIndex((i) => Math.min(i, Math.max(0, blogs.length - visibleCount)));
+  }, [visibleCount, blogs.length]);
 
-  const maxIndex  = Math.max(0, destinations.length - visibleCount);
+  const maxIndex  = Math.max(0, blogs.length - visibleCount);
   const canGoPrev = currentIndex > 0;
   const canGoNext = currentIndex < maxIndex;
 
@@ -48,21 +48,26 @@ const TopDestination = () => {
   const next = () => setCurrentIndex((i) => Math.min(maxIndex, i + 1));
 
   if (loading) {
-    return <p className="text-center text-slate-500 py-10">Loading destinations...</p>;
+    return <p className="text-center text-slate-500 py-10">Loading blogs...</p>;
   }
 
-  if (destinations.length === 0) {
-    return <p className="text-center text-slate-500 py-10">No destinations found.</p>;
+  if (blogs.length === 0) {
+    return <p className="text-center text-slate-500 py-10">No blog posts found.</p>;
   }
 
-  // Gap between cards in px
   const GAP = 24;
 
   return (
     <section className="py-14">
-      <h2 className="text-2xl font-bold text-center mb-8 text-gray-900">
-        Explore Top Destinations
-      </h2>
+      {/* Section Header */}
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+          Latest from the Journal
+        </h2>
+        <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm">
+          Stories and inspiration from our community of explorers
+        </p>
+      </div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative">
@@ -88,25 +93,15 @@ const TopDestination = () => {
                 transform: `translateX(calc(-${currentIndex} * (100% / ${visibleCount} + ${GAP / visibleCount}px)))`,
               }}
             >
-              {destinations.map((destination) => (
+              {blogs.map((blog) => (
                 <div
-                  key={destination.destination_id}
+                  key={blog.blog_id}
                   className="flex-shrink-0"
                   style={{
                     width: `calc(${100 / visibleCount}% - ${(GAP * (visibleCount - 1)) / visibleCount}px)`,
                   }}
                 >
-                  <Card
-                    destinationId={destination.destination_id}
-                    name={destination.name}
-                    description={destination.description}
-                    image={
-                      destination.image
-                        ? `http://localhost:5000/uploads/${destination.image}`
-                        : null
-                    }
-                    spots={destination.spots || []}
-                  />
+                  <BlogCard blog={blog} />
                 </div>
               ))}
             </div>
@@ -126,7 +121,7 @@ const TopDestination = () => {
         </div>
 
         {/* Dot Indicators */}
-        {destinations.length > visibleCount && (
+        {blogs.length > visibleCount && (
           <div className="flex justify-center gap-2 mt-6">
             {Array.from({ length: maxIndex + 1 }).map((_, i) => (
               <button
@@ -141,9 +136,19 @@ const TopDestination = () => {
             ))}
           </div>
         )}
+
+        {/* View All Link */}
+        <div className="flex justify-center mt-8">
+          <a
+            href="/blog"
+            className="px-6 py-2.5 border border-primary text-primary text-sm font-semibold rounded-lg hover:bg-primary hover:text-white transition-colors duration-200"
+          >
+            View All Posts →
+          </a>
+        </div>
       </div>
     </section>
   );
 };
 
-export default TopDestination;
+export default HeroBlog;
