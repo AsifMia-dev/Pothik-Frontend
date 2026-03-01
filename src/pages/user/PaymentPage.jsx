@@ -84,8 +84,8 @@ const PaymentPage = () => {
             }
         }
 
-        // Loyalty points discount (1 point = 1 BDT)
-        const loyaltyDiscount = useLoyaltyPoints ? Math.min(pointsToUse, loyaltyPoints) : 0;
+        // Loyalty points discount (1 point = 1 BDT, minimum 50 pts to redeem)
+        const loyaltyDiscount = (useLoyaltyPoints && pointsToUse >= 50) ? Math.min(pointsToUse, loyaltyPoints) : 0;
 
         // Tax (0%)
         const taxableAmount = subtotal - couponDiscount - loyaltyDiscount;
@@ -718,33 +718,42 @@ const PaymentPage = () => {
                             </div>
 
                             {/* Loyalty Points Section */}
-                            {user && loyaltyPoints > 0 && (
-                                <div className="mt-6 p-4 bg-purple-50 rounded-lg">
-                                    <label className="flex items-center gap-3 cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={useLoyaltyPoints}
-                                            onChange={(e) => setUseLoyaltyPoints(e.target.checked)}
-                                            className="w-5 h-5"
-                                        />
-                                        <div>
-                                            <p className="font-medium">Use Loyalty Points</p>
-                                            <p className="text-sm text-gray-600">
-                                                Available: <strong>{loyaltyPoints}</strong> points (৳{loyaltyPoints})
-                                            </p>
+                            {user && loyaltyPoints >= 50 && (
+                                <div className="mt-6">
+                                    <div
+                                        onClick={() => {
+                                            setUseLoyaltyPoints(!useLoyaltyPoints);
+                                            if (useLoyaltyPoints) setPointsToUse(0);
+                                        }}
+                                        className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all duration-200 ${useLoyaltyPoints
+                                                ? 'border-purple-400 bg-purple-50'
+                                                : 'border-gray-200 bg-gray-50 hover:border-purple-300'
+                                            }`}
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <span>⭐</span>
+                                            <span className="text-sm font-medium text-gray-800">Use Loyalty Points</span>
                                         </div>
-                                    </label>
+                                        <span className="text-sm text-purple-600 font-semibold">{loyaltyPoints} pts available</span>
+                                    </div>
+
                                     {useLoyaltyPoints && (
-                                        <div className="mt-3">
+                                        <div className="mt-3 flex items-center gap-2">
                                             <input
                                                 type="number"
-                                                min={0}
-                                                max={Math.min(loyaltyPoints, pricing.subtotal)}
-                                                value={pointsToUse}
-                                                onChange={(e) => setPointsToUse(Math.min(parseInt(e.target.value) || 0, loyaltyPoints))}
-                                                placeholder="Points to use"
-                                                className="w-full px-4 py-2 border rounded-lg"
+                                                min={50}
+                                                max={Math.min(loyaltyPoints, Math.floor(pricing.subtotal))}
+                                                value={pointsToUse || ''}
+                                                onChange={(e) => {
+                                                    const val = parseInt(e.target.value) || 0;
+                                                    setPointsToUse(Math.min(val, loyaltyPoints, Math.floor(pricing.subtotal)));
+                                                }}
+                                                placeholder={`Enter points (min 50, max ${Math.min(loyaltyPoints, Math.floor(pricing.subtotal))})`}
+                                                className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                                                autoFocus
                                             />
+                                            <span className="text-sm text-gray-500">=</span>
+                                            <span className="text-sm font-bold text-green-600 whitespace-nowrap">৳{pointsToUse || 0} off</span>
                                         </div>
                                     )}
                                 </div>
