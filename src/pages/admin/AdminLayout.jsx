@@ -1,16 +1,15 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
 
 const AdminLayout = () => {
+  const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Clear both sessionStorage and localStorage
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("authUser");
+    navigate("/");
+    logout();
     localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    navigate("/login");
   };
 
   // Sidebar links
@@ -37,8 +36,7 @@ const AdminLayout = () => {
                 key={link.path}
                 to={link.path}
                 className={({ isActive }) =>
-                  `px-6 py-3 text-sm font-medium hover:bg-gray-700 ${isActive ? "bg-gray-700" : ""
-                  }`
+                  `px-6 py-3 text-sm font-medium hover:bg-gray-700 ${isActive ? "bg-gray-700" : ""}`
                 }
               >
                 {link.name}
