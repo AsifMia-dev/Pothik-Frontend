@@ -29,6 +29,7 @@ import MyListings from "../pages/user/MyListings";
 import Payouts from "../pages/user/Payouts";
 import GiveReview from '../pages/user/GiveReview';
 import EditReview from '../pages/user/EditReview';
+import EditBlog from '../pages/user/EditBlog';
 
 /* ===================== OWNER PAGES ===================== */
 import OwnerLayout from "../pages/owner/OwnerLayout";
@@ -117,6 +118,12 @@ export const allRoutes = [
     element: BlogPost,
     isPrivate: true,
     role: "customer"
+  },
+  {
+    path: "/user/edit-blog/:blogId",
+    element: EditBlog,  
+    isPrivate: true,
+    role: "customer",
   },
   {
     path: "/payment/:packageId",
