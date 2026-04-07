@@ -27,6 +27,8 @@ import CustomPackage from "../pages/user/CustomPackage";
 import Settings from "../pages/user/Settings";
 import MyListings from "../pages/user/MyListings";
 import Payouts from "../pages/user/Payouts";
+import GiveReview from '../pages/user/GiveReview';
+import EditReview from '../pages/user/EditReview';
 
 /* ===================== OWNER PAGES ===================== */
 import OwnerLayout from "../pages/owner/OwnerLayout";
@@ -80,6 +82,18 @@ export const allRoutes = [
     isPrivate: true,
     role: "customer"
   },
+  {
+    path: "/user/give-review",
+    element: GiveReview,
+    isPrivate: true,
+    role: "customer"
+  },
+  {
+  path: "/user/edit-review/:reviewId",
+  element: EditReview,
+  isPrivate: true,
+  role: "customer",
+},
   {
     path: "/user/create-package",
     element: CreatePackage,
