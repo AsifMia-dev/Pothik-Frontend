@@ -1,9 +1,8 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useContext, useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import axios from 'axios';
 import { Toast } from 'primereact/toast';
-import { useRef } from 'react';
 import UserDashboardLayout from '../../components/UserDashboardLayout';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -59,7 +58,6 @@ const Profile = () => {
         });
 
         if (response.data.user) {
-          // Update user context with fresh data
           login(response.data.user);
         }
       } catch (error) {
@@ -78,18 +76,12 @@ const Profile = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
-    setPasswordData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setPasswordData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSaveChanges = async () => {
@@ -104,14 +96,9 @@ const Profile = () => {
           country: formData.country,
           street_address: formData.streetAddress,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // Update the user in context with new data
       if (response.data.user) {
         login(response.data.user);
       }
@@ -136,7 +123,6 @@ const Profile = () => {
   };
 
   const handleSavePassword = async () => {
-    // Validate passwords
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       toast.current.show({
         severity: 'error',
@@ -166,11 +152,7 @@ const Profile = () => {
           currentPassword: passwordData.currentPassword,
           newPassword: passwordData.newPassword,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       toast.current.show({
@@ -180,12 +162,7 @@ const Profile = () => {
         life: 3000,
       });
 
-      // Clear password fields
-      setPasswordData({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: '',
-      });
+      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
     } catch (error) {
       console.error('Error updating password:', error);
       toast.current.show({
@@ -203,7 +180,7 @@ const Profile = () => {
     <UserDashboardLayout>
       <Toast ref={toast} />
 
-      {/* Profile Photo Section - Separate Card */}
+      {/* Profile Photo Section */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -214,7 +191,9 @@ const Profile = () => {
             </div>
             <div>
               <h3 className="font-semibold text-gray-900">{user?.full_name || 'User'}</h3>
-              <p className="text-sm text-gray-500">Update your photo. It will be displayed on your public profile.</p>
+              <p className="text-sm text-gray-500">
+                Update your photo. It will be displayed on your public profile.
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -228,28 +207,47 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Form Section - Separate Card */}
+      {/* Quick Links Row */}
+      <div
+        onClick={() => navigate('/dashboard/custom-packages')}
+        className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 flex items-center justify-between cursor-pointer hover:border-blue-300 hover:shadow-md transition-all group"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-sm">
+            <i className="pi pi-box text-white text-sm"></i>
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-gray-800">Custom Packages</p>
+            <p className="text-xs text-gray-400">View packages assigned to your account</p>
+          </div>
+        </div>
+        <i className="pi pi-arrow-right text-gray-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all text-sm"></i>
+      </div>
+
+      {/* Form Section */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
         {/* Tabs */}
         <div className="px-6 border-b border-gray-100">
           <div className="flex gap-8">
             <button
               onClick={() => setActiveTab('personal')}
-              className={`py-4 text-sm font-medium border-b-2 transition-colors ${activeTab === 'personal'
-                ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
+              className={`py-4 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'personal'
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
             >
               Personal Info
             </button>
             <button
               onClick={() => setActiveTab('security')}
-              className={`py-4 text-sm font-medium border-b-2 transition-colors ${activeTab === 'security'
-                ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
+              className={`py-4 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'security'
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
             >
-              Password & Security
+              Password &amp; Security
             </button>
           </div>
         </div>
@@ -258,12 +256,10 @@ const Profile = () => {
         <div className="p-6">
           {activeTab === 'personal' ? (
             <div className="space-y-6">
-              {/* Full Name & Email Row */}
+              {/* Full Name & Email */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Full Name
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
                   <input
                     type="text"
                     name="fullName"
@@ -274,9 +270,7 @@ const Profile = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
                   <input
                     type="email"
                     name="email"
@@ -289,12 +283,10 @@ const Profile = () => {
                 </div>
               </div>
 
-              {/* Phone & Country Row */}
+              {/* Phone & Country */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Phone Number
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
                   <input
                     type="tel"
                     name="phone"
@@ -305,9 +297,7 @@ const Profile = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Country
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
                   <div className="relative">
                     <select
                       name="country"
@@ -333,9 +323,7 @@ const Profile = () => {
 
               {/* Street Address */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Street Address
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Street Address</label>
                 <input
                   type="text"
                   name="streetAddress"
@@ -346,18 +334,18 @@ const Profile = () => {
                 />
               </div>
 
-              {/* Divider */}
               <div className="border-t border-gray-200 pt-6 mt-6">
-                {/* Action Buttons */}
                 <div className="flex justify-end gap-4">
                   <button
-                    onClick={() => setFormData({
-                      fullName: user?.full_name || '',
-                      email: user?.email || '',
-                      phone: user?.phone || '',
-                      country: user?.country || '',
-                      streetAddress: user?.street_address || '',
-                    })}
+                    onClick={() =>
+                      setFormData({
+                        fullName: user?.full_name || '',
+                        email: user?.email || '',
+                        phone: user?.phone || '',
+                        country: user?.country || '',
+                        streetAddress: user?.street_address || '',
+                      })
+                    }
                     disabled={loading}
                     className="px-6 py-2.5 text-gray-600 text-sm font-medium hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50"
                   >
@@ -368,9 +356,7 @@ const Profile = () => {
                     disabled={loading}
                     className="px-6 py-2.5 bg-[#3b82f6] text-white text-sm font-medium rounded-full hover:bg-[#2563eb] transition-colors disabled:opacity-50 flex items-center gap-2"
                   >
-                    {loading && (
-                      <i className="pi pi-spinner pi-spin"></i>
-                    )}
+                    {loading && <i className="pi pi-spinner pi-spin"></i>}
                     {loading ? 'Saving...' : 'Save Changes'}
                   </button>
                 </div>
@@ -380,9 +366,7 @@ const Profile = () => {
             <div className="space-y-6">
               {/* Current Password */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Current Password
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
                 <input
                   type="password"
                   name="currentPassword"
@@ -393,12 +377,10 @@ const Profile = () => {
                 />
               </div>
 
-              {/* New Password & Confirm Row */}
+              {/* New Password & Confirm */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    New Password
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
                   <input
                     type="password"
                     name="newPassword"
@@ -409,9 +391,7 @@ const Profile = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Confirm New Password
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
                   <input
                     type="password"
                     name="confirmPassword"
@@ -427,35 +407,26 @@ const Profile = () => {
               <div className="bg-gray-50 rounded-lg p-4">
                 <h4 className="text-sm font-medium text-gray-700 mb-2">Password Requirements:</h4>
                 <ul className="text-sm text-gray-500 space-y-1">
-                  <li className="flex items-center gap-2">
-                    <i className="pi pi-check-circle text-green-500"></i>
-                    At least 8 characters long
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <i className="pi pi-check-circle text-green-500"></i>
-                    Contains at least one uppercase letter
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <i className="pi pi-check-circle text-green-500"></i>
-                    Contains at least one number
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <i className="pi pi-check-circle text-green-500"></i>
-                    Contains at least one special character
-                  </li>
+                  {[
+                    'At least 8 characters long',
+                    'Contains at least one uppercase letter',
+                    'Contains at least one number',
+                    'Contains at least one special character',
+                  ].map((req) => (
+                    <li key={req} className="flex items-center gap-2">
+                      <i className="pi pi-check-circle text-green-500"></i>
+                      {req}
+                    </li>
+                  ))}
                 </ul>
               </div>
 
-              {/* Divider */}
               <div className="border-t border-gray-200 pt-6 mt-6">
-                {/* Action Buttons */}
                 <div className="flex justify-end gap-4">
                   <button
-                    onClick={() => setPasswordData({
-                      currentPassword: '',
-                      newPassword: '',
-                      confirmPassword: '',
-                    })}
+                    onClick={() =>
+                      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' })
+                    }
                     disabled={passwordLoading}
                     className="px-6 py-2.5 text-gray-600 text-sm font-medium hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50"
                   >
@@ -466,9 +437,7 @@ const Profile = () => {
                     disabled={passwordLoading}
                     className="px-6 py-2.5 bg-[#3b82f6] text-white text-sm font-medium rounded-full hover:bg-[#2563eb] transition-colors disabled:opacity-50 flex items-center gap-2"
                   >
-                    {passwordLoading && (
-                      <i className="pi pi-spinner pi-spin"></i>
-                    )}
+                    {passwordLoading && <i className="pi pi-spinner pi-spin"></i>}
                     {passwordLoading ? 'Updating...' : 'Update Password'}
                   </button>
                 </div>
