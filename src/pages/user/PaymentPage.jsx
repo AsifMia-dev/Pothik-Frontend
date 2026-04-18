@@ -1,9 +1,10 @@
-// src/pages/user/PaymentPage.jsx
 import React, { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import Layout from "../../components/Layout";
 import api from "../../Helper/baseUrl.helper";
 import { AuthContext } from "../../context/AuthContext";
+
+const getAuthToken = () => sessionStorage.getItem("token") || localStorage.getItem("token") || "";
 
 const PaymentPage = () => {
     const { packageId } = useParams();
@@ -11,67 +12,39 @@ const PaymentPage = () => {
     const navigate = useNavigate();
     const { user } = useContext(AuthContext);
 
-    // Package & pricing state
     const [packageInfo, setPackageInfo] = useState(null);
-    const [destinations, setDestinations] = useState([]);
-    const [services, setServices] = useState({ hotels: [], transports: [], guides: [] });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Booking details - single traveler only for prebuilt packages
-    const [travelers] = useState({
-        adults: 1,
-        children: 0,
-    });
     const [travelDate, setTravelDate] = useState(searchParams.get("date") || "");
     const [specialRequests, setSpecialRequests] = useState("");
     const [emergencyContact, setEmergencyContact] = useState("");
 
-    // Traveler details
     const [travelerDetails, setTravelerDetails] = useState([]);
 
-    // Coupon state
     const [couponCode, setCouponCode] = useState("");
     const [couponApplied, setCouponApplied] = useState(null);
     const [couponError, setCouponError] = useState("");
     const [couponLoading, setCouponLoading] = useState(false);
 
-    // Loyalty points
     const [loyaltyPoints, setLoyaltyPoints] = useState(0);
     const [useLoyaltyPoints, setUseLoyaltyPoints] = useState(false);
     const [pointsToUse, setPointsToUse] = useState(0);
 
-    // bKash payment
-    const [bkashNumber, setBkashNumber] = useState("");
-    const [bkashOtp, setBkashOtp] = useState("");
-    const [otpSent, setOtpSent] = useState(false);
-    const [paymentStep, setPaymentStep] = useState(1); // 1: details, 2: otp, 3: processing
-
-    // Terms
     const [agreeTerms, setAgreeTerms] = useState(false);
-
-    // Payment type
-    const [paymentType, setPaymentType] = useState("full"); // full or partial
-
-    // Processing state
+    const [paymentType, setPaymentType] = useState("full");
     const [processing, setProcessing] = useState(false);
-    const [paymentSuccess, setPaymentSuccess] = useState(false);
-    const [bookingId, setBookingId] = useState(null);
+    const [paymentError, setPaymentError] = useState("");
 
-    // Format price
     const formatPrice = (price) => {
         if (!price) return "0";
         return parseFloat(price).toLocaleString("en-BD");
     };
 
-    // Calculate pricing - single traveler
     const calculatePricing = () => {
         const basePrice = parseFloat(packageInfo?.base_price) || 0;
-        const totalTravelers = 1;
-
         const subtotal = basePrice;
 
-        // Coupon discount
         let couponDiscount = 0;
         if (couponApplied) {
             if (couponApplied.discount_type === "percentage") {
@@ -84,20 +57,11 @@ const PaymentPage = () => {
             }
         }
 
-        // Loyalty points discount (1 point = 1 BDT, minimum 50 pts to redeem)
-        const loyaltyDiscount = (useLoyaltyPoints && pointsToUse >= 50) ? Math.min(pointsToUse, loyaltyPoints) : 0;
-
-        // Tax (0%)
+        const loyaltyDiscount = useLoyaltyPoints && pointsToUse >= 50 ? Math.min(pointsToUse, loyaltyPoints) : 0;
         const taxableAmount = subtotal - couponDiscount - loyaltyDiscount;
         const tax = 0;
-
-        // Service fee
         const serviceFee = 0;
-
-        // Grand total
         const grandTotal = Math.max(0, taxableAmount + tax + serviceFee);
-
-        // Partial payment (50%)
         const partialAmount = grandTotal * 0.5;
 
         return {
@@ -113,81 +77,54 @@ const PaymentPage = () => {
         };
     };
 
-    // Fetch package details
     useEffect(() => {
         const fetchPackageDetails = async () => {
             try {
                 setLoading(true);
+                setError(null);
 
-                // Fetch package info
                 const resPackage = await api.get(`/package/packages/${packageId}`);
                 const pkg = resPackage.data?.data;
                 if (!pkg) throw new Error("Package not found");
                 setPackageInfo(pkg);
 
-                // Set travel date from package if not provided
                 if (!travelDate && pkg.Start_Date) {
                     setTravelDate(pkg.Start_Date.split("T")[0]);
                 }
 
-                // Fetch destinations
-                const resDest = await api.get(`/packageDestination/package/${packageId}`);
-                const packageDestinations = resDest.data?.data || [];
-
-                if (packageDestinations.length > 0) {
-                    const destPromises = packageDestinations.map(async (pd) => {
-                        const resDestDetails = await api.get(`/destination/destinations/${pd.destination_id}`);
-                        return resDestDetails.data?.destination || {};
-                    });
-                    const destinationsData = await Promise.all(destPromises);
-                    setDestinations(destinationsData);
-                }
-
-                // Fetch services
-                const resServices = await api.get(`/service/package/${packageId}`);
-                const packageServices = resServices.data?.data || [];
-
-                const hotels = packageServices.filter((s) => s.service_type === "hotel");
-                const transports = packageServices.filter((s) => s.service_type === "transport");
-                const guides = packageServices.filter((s) => s.service_type === "guide");
-
-                setServices({ hotels, transports, guides });
-
-                // Fetch user's loyalty points if logged in
                 if (user?.user_id) {
                     try {
-                        const token = localStorage.getItem('token');
+                        const token = getAuthToken();
                         const resLoyalty = await api.get(`/loyalty/balance/${user.user_id}`, {
-                            headers: { Authorization: `Bearer ${token}` },
+                            headers: token ? { Authorization: `Bearer ${token}` } : {},
                         });
                         setLoyaltyPoints(resLoyalty.data?.data?.current_balance || 0);
-                    } catch (err) {
-                        console.log("Could not fetch loyalty points");
+                    } catch {
+                        setLoyaltyPoints(0);
                     }
                 }
             } catch (err) {
-                console.error(err);
-                setError("Failed to fetch package details.");
+                setError(err?.response?.data?.error || "Failed to fetch package details.");
             } finally {
                 setLoading(false);
             }
         };
 
         fetchPackageDetails();
-    }, [packageId, user]);
+    }, [packageId, user, travelDate]);
 
-    // Initialize single traveler details
     useEffect(() => {
-        setTravelerDetails([{
-            name: user?.full_name || "",
-            nid: "",
-            phone: user?.phone || "",
-            email: user?.email || "",
-            type: "adult",
-        }]);
+        setTravelerDetails([
+            {
+                name: user?.full_name || "",
+                nid: "",
+                phone: user?.phone || "",
+                email: user?.email || "",
+                type: "adult",
+            },
+        ]);
     }, [user]);
 
-    // Apply coupon
     const applyCoupon = async () => {
         if (!couponCode.trim()) {
             setCouponError("Please enter a coupon code");
@@ -203,14 +140,12 @@ const PaymentPage = () => {
                 const coupon = res.data.coupon;
                 const pricing = calculatePricing();
 
-                // Check minimum order
                 if (coupon.min_order && pricing.subtotal < coupon.min_order) {
                     setCouponError(`Minimum order amount is ৳${formatPrice(coupon.min_order)}`);
                     return;
                 }
 
                 setCouponApplied(coupon);
-                setCouponError("");
             } else {
                 setCouponError("Invalid or expired coupon code");
             }
@@ -221,80 +156,58 @@ const PaymentPage = () => {
         }
     };
 
-    // Remove coupon
     const removeCoupon = () => {
         setCouponApplied(null);
         setCouponCode("");
         setCouponError("");
     };
 
-    // Send bKash OTP (simulated)
-    const sendBkashOtp = () => {
-        if (!bkashNumber || bkashNumber.length !== 11) {
-            alert("Please enter a valid 11-digit bKash number");
-            return;
-        }
-        setOtpSent(true);
-        setPaymentStep(2);
-        // Simulated OTP - in real implementation, call bKash API
-        alert(`OTP sent to ${bkashNumber}. For demo, use OTP: 123456`);
+    const updateTravelerDetail = (index, field, value) => {
+        const updated = [...travelerDetails];
+        updated[index][field] = value;
+        setTravelerDetails(updated);
     };
 
-    // Process payment
-    const processPayment = async () => {
-        // Validation
+    const handleProceedToPayment = async () => {
+        setPaymentError("");
+
         if (!agreeTerms) {
-            alert("Please agree to the terms and conditions");
+            setPaymentError("Please agree to the terms and conditions.");
             return;
         }
 
-        if (!bkashNumber || bkashNumber.length !== 11) {
-            alert("Please enter a valid bKash number");
+        if (!travelDate) {
+            setPaymentError("Please select a travel date.");
             return;
         }
 
-        if (!bkashOtp || bkashOtp.length !== 6) {
-            alert("Please enter the 6-digit OTP");
-            return;
-        }
-
-        // Validate traveler details
         const traveler = travelerDetails[0];
-        if (!traveler?.name?.trim()) {
-            alert("Please enter your full name");
-            return;
-        }
-        if (!traveler?.phone?.trim()) {
-            alert("Please enter your phone number");
-            return;
-        }
-        if (!traveler?.email?.trim()) {
-            alert("Please enter your email address");
+        if (!traveler?.name?.trim() || !traveler?.phone?.trim() || !traveler?.email?.trim()) {
+            setPaymentError("Traveler name, phone and email are required.");
             return;
         }
 
         if (!user) {
-            alert("Please login to continue");
             navigate("/login");
             return;
         }
 
         setProcessing(true);
-        setPaymentStep(3);
 
         try {
             const pricing = calculatePricing();
+            const token = getAuthToken();
+            const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
-            // Create booking - single traveler
             const bookingData = {
                 user_id: user.user_id,
-                package_id: parseInt(packageId),
+                package_id: parseInt(packageId, 10),
                 travel_date: travelDate,
                 num_travelers: 1,
                 adults: 1,
                 children: 0,
                 total_price: pricing.grandTotal,
-                paid_amount: pricing.payableAmount,
+                paid_amount: 0,
                 payment_type: paymentType,
                 special_requests: specialRequests,
                 emergency_contact: emergencyContact,
@@ -302,30 +215,40 @@ const PaymentPage = () => {
                 coupon_id: couponApplied?.coupon_id || null,
                 coupon_discount: pricing.couponDiscount,
                 loyalty_points_used: pricing.loyaltyDiscount,
-                status: "confirmed",
+                status: "pending",
             };
 
-            const bookingRes = await api.post("/booking/bookings", bookingData, {
-                headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` },
+            const bookingRes = await api.post("/booking/booking", bookingData, {
+                headers: authHeaders,
             });
 
             const booking = bookingRes.data?.data;
+            if (!booking?.booking_id) {
+                throw new Error("Booking was created but booking id was not returned");
+            }
 
-            // Create payment record
-            const paymentData = {
+            const paymentPayload = {
                 booking_id: booking.booking_id,
-                amount: pricing.payableAmount,
-                method: "bkash",
-                bkash_number: bkashNumber,
-                transaction_id: `BK${Date.now()}`,
-                status: "completed",
+                amount: Number(pricing.payableAmount).toFixed(2),
+                currency: "BDT",
+                customer_name: traveler.name,
+                customer_email: traveler.email,
+                customer_phone: traveler.phone,
+                customer_address: emergencyContact || "Dhaka",
+                customer_city: "Dhaka",
+                customer_postcode: "1207",
+                customer_country: "Bangladesh",
             };
 
-            await api.post("/payments/payments", paymentData, {
-                headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` },
+            const paymentInit = await api.post("/payments/init", paymentPayload, {
+                headers: authHeaders,
             });
 
-            // Deduct loyalty points if used
+            const gatewayUrl = paymentInit.data?.data?.gateway_url;
+            if (!gatewayUrl) {
+                throw new Error(paymentInit.data?.error || paymentInit.data?.message || "Could not start SSLCommerz payment");
+            }
+
             if (useLoyaltyPoints && pricing.loyaltyDiscount > 0) {
                 await api.post(
                     "/loyalty/deduct",
@@ -334,40 +257,21 @@ const PaymentPage = () => {
                         points: pricing.loyaltyDiscount,
                         description: `Used for booking #${booking.booking_id}`,
                     },
-                    { headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` } }
+                    { headers: authHeaders }
                 );
             }
 
-            // Add loyalty points for this booking (5% of total)
-            const earnedPoints = Math.floor(pricing.grandTotal * 0.05);
-            if (earnedPoints > 0) {
-                await api.post(
-                    "/loyalty/add",
-                    {
-                        user_id: user.user_id,
-                        points: earnedPoints,
-                        description: `Earned from booking #${booking.booking_id}`,
-                    },
-                    { headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` } }
-                );
-            }
-
-            setBookingId(booking.booking_id);
-            setPaymentSuccess(true);
+            sessionStorage.setItem("pendingBookingId", String(booking.booking_id));
+            window.location.href = gatewayUrl;
         } catch (err) {
-            console.error("Payment error:", err);
-            alert(err.response?.data?.error || "Payment failed. Please try again.");
-            setPaymentStep(2);
-        } finally {
+            const backendError = err.response?.data?.error;
+            const backendDetails = err.response?.data?.details;
+            const backendMessage = err.response?.data?.message;
+            setPaymentError(
+                backendError || backendDetails || backendMessage || err.message || "Payment initialization failed. Please try again."
+            );
             setProcessing(false);
         }
-    };
-
-    // Update traveler detail
-    const updateTravelerDetail = (index, field, value) => {
-        const updated = [...travelerDetails];
-        updated[index][field] = value;
-        setTravelerDetails(updated);
     };
 
     if (loading) {
@@ -385,62 +289,9 @@ const PaymentPage = () => {
             <Layout>
                 <div className="text-center py-20">
                     <p className="text-red-500 text-xl">{error || "Package not found"}</p>
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="mt-4 px-6 py-2 bg-[#034D41] text-white rounded-lg"
-                    >
+                    <button onClick={() => navigate(-1)} className="mt-4 px-6 py-2 bg-[#034D41] text-white rounded-lg">
                         Go Back
                     </button>
-                </div>
-            </Layout>
-        );
-    }
-
-    // Payment success screen
-    if (paymentSuccess) {
-        return (
-            <Layout>
-                <div className="max-w-2xl mx-auto px-4 py-16 text-center">
-                    <div className="bg-green-100 rounded-full w-24 h-24 mx-auto flex items-center justify-center mb-6">
-                        <svg className="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                    </div>
-                    <h1 className="text-3xl font-bold text-green-600 mb-4">Payment Successful!</h1>
-                    <p className="text-gray-600 mb-2">Your booking has been confirmed.</p>
-                    <p className="text-gray-600 mb-6">Booking ID: <strong>#{bookingId}</strong></p>
-
-                    <div className="bg-white rounded-xl shadow-lg p-6 mb-8 text-left">
-                        <h2 className="text-xl font-bold mb-4">Booking Summary</h2>
-                        <div className="space-y-2 text-gray-700">
-                            <p><strong>Package:</strong> {packageInfo.name}</p>
-                            <p><strong>Travel Date:</strong> {new Date(travelDate).toLocaleDateString("en-BD", { dateStyle: "long" })}</p>
-                            <p><strong>Traveler:</strong> 1 Person</p>
-                            <p><strong>Amount Paid:</strong> ৳{formatPrice(calculatePricing().payableAmount)}</p>
-                            {paymentType === "partial" && (
-                                <p className="text-orange-600"><strong>Remaining:</strong> ৳{formatPrice(calculatePricing().partialAmount)} (Due before trip)</p>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="flex gap-4 justify-center">
-                        <button
-                            onClick={() => navigate("/user/bookings")}
-                            className="px-6 py-3 bg-[#034D41] text-white font-bold rounded-lg hover:bg-[#023830] transition"
-                        >
-                            View My Bookings
-                        </button>
-                        <button
-                            onClick={() => window.print()}
-                            className="px-6 py-3 border-2 border-[#034D41] text-[#034D41] font-bold rounded-lg hover:bg-gray-50 transition"
-                        >
-                            Download Invoice
-                        </button>
-                    </div>
-
-                    <p className="mt-6 text-sm text-gray-500">
-                        A confirmation email has been sent to your registered email address.
-                    </p>
                 </div>
             </Layout>
         );
@@ -451,13 +302,10 @@ const PaymentPage = () => {
     return (
         <Layout>
             <div className="max-w-7xl mx-auto px-4 py-8">
-                {/* Page Title */}
                 <h1 className="text-3xl font-bold text-center mb-8">Complete Your Booking</h1>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Left Side - Package Information */}
                     <div className="space-y-6">
-                        {/* Package Card */}
                         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
                             <div className="relative h-48">
                                 <img
@@ -480,24 +328,18 @@ const PaymentPage = () => {
 
                                 <div className="grid grid-cols-2 gap-4 text-sm">
                                     <div className="flex items-center gap-2">
-                                        <span className="text-[#034D41]">📅</span>
                                         <span><strong>Duration:</strong> {packageInfo.duration_days} Days</span>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <span className="text-[#034D41]">💰</span>
                                         <span><strong>Base Price:</strong> ৳{formatPrice(packageInfo.base_price)}/person</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Traveler Details Form */}
                         <div className="bg-white rounded-xl shadow-lg p-6">
-                            <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                                <span>�</span> Traveler Information
-                            </h3>
+                            <h3 className="text-xl font-bold mb-4">Traveler Information</h3>
 
-                            {/* Travel Date */}
                             <div className="mb-6">
                                 <label className="block text-sm font-medium mb-2">Travel Date</label>
                                 <input
@@ -509,55 +351,51 @@ const PaymentPage = () => {
                                 />
                             </div>
 
-                            {/* Traveler Information */}
-                            <div className="space-y-4">
-                                {travelerDetails.length > 0 && (
-                                    <div className="p-4 bg-gray-50 rounded-lg space-y-4">
-                                        <div>
-                                            <label className="block text-sm font-medium mb-2">Full Name *</label>
-                                            <input
-                                                type="text"
-                                                placeholder="Enter your full name"
-                                                value={travelerDetails[0]?.name || ""}
-                                                onChange={(e) => updateTravelerDetail(0, "name", e.target.value)}
-                                                className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#034D41]"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium mb-2">Phone Number *</label>
-                                            <input
-                                                type="tel"
-                                                placeholder="01XXXXXXXXX"
-                                                value={travelerDetails[0]?.phone || ""}
-                                                onChange={(e) => updateTravelerDetail(0, "phone", e.target.value)}
-                                                className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#034D41]"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium mb-2">Email Address *</label>
-                                            <input
-                                                type="email"
-                                                placeholder="your@email.com"
-                                                value={travelerDetails[0]?.email || ""}
-                                                onChange={(e) => updateTravelerDetail(0, "email", e.target.value)}
-                                                className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#034D41]"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium mb-2">NID / Passport (Optional)</label>
-                                            <input
-                                                type="text"
-                                                placeholder="Enter NID or Passport number"
-                                                value={travelerDetails[0]?.nid || ""}
-                                                onChange={(e) => updateTravelerDetail(0, "nid", e.target.value)}
-                                                className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#034D41]"
-                                            />
-                                        </div>
+                            {travelerDetails.length > 0 && (
+                                <div className="p-4 bg-gray-50 rounded-lg space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium mb-2">Full Name *</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Enter your full name"
+                                            value={travelerDetails[0]?.name || ""}
+                                            onChange={(e) => updateTravelerDetail(0, "name", e.target.value)}
+                                            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#034D41]"
+                                        />
                                     </div>
-                                )}
-                            </div>
+                                    <div>
+                                        <label className="block text-sm font-medium mb-2">Phone Number *</label>
+                                        <input
+                                            type="tel"
+                                            placeholder="01XXXXXXXXX"
+                                            value={travelerDetails[0]?.phone || ""}
+                                            onChange={(e) => updateTravelerDetail(0, "phone", e.target.value)}
+                                            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#034D41]"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium mb-2">Email Address *</label>
+                                        <input
+                                            type="email"
+                                            placeholder="your@email.com"
+                                            value={travelerDetails[0]?.email || ""}
+                                            onChange={(e) => updateTravelerDetail(0, "email", e.target.value)}
+                                            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#034D41]"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium mb-2">NID / Passport (Optional)</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Enter NID or Passport number"
+                                            value={travelerDetails[0]?.nid || ""}
+                                            onChange={(e) => updateTravelerDetail(0, "nid", e.target.value)}
+                                            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#034D41]"
+                                        />
+                                    </div>
+                                </div>
+                            )}
 
-                            {/* Emergency Contact */}
                             <div className="mt-6">
                                 <label className="block text-sm font-medium mb-2">Emergency Contact Number</label>
                                 <input
@@ -569,7 +407,6 @@ const PaymentPage = () => {
                                 />
                             </div>
 
-                            {/* Special Requests */}
                             <div className="mt-6">
                                 <label className="block text-sm font-medium mb-2">Special Requests (Optional)</label>
                                 <textarea
@@ -581,27 +418,11 @@ const PaymentPage = () => {
                                 />
                             </div>
                         </div>
-
-                        {/* Cancellation Policy */}
-                        <div className="bg-orange-50 border border-orange-200 rounded-xl p-6">
-                            <h3 className="text-lg font-bold mb-2 flex items-center gap-2 text-orange-700">
-                                <span>⚠️</span> Cancellation Policy
-                            </h3>
-                            <ul className="text-sm text-orange-800 space-y-1">
-                                <li>• Full refund if cancelled 7+ days before trip</li>
-                                <li>• 50% refund if cancelled 3-7 days before trip</li>
-                                <li>• No refund if cancelled less than 3 days before trip</li>
-                            </ul>
-                        </div>
                     </div>
 
-                    {/* Right Side - Payment */}
                     <div className="space-y-6">
-                        {/* Price Summary */}
                         <div className="bg-white rounded-xl shadow-lg p-6 sticky top-4">
-                            <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                                <span>💳</span> Payment Summary
-                            </h3>
+                            <h3 className="text-xl font-bold mb-4">Payment Summary</h3>
 
                             <div className="space-y-3 text-gray-700">
                                 <div className="flex justify-between">
@@ -628,7 +449,7 @@ const PaymentPage = () => {
                                 )}
 
                                 <div className="flex justify-between">
-                                    <span>Tax (5%)</span>
+                                    <span>Tax (0%)</span>
                                     <span>৳{formatPrice(pricing.tax)}</span>
                                 </div>
 
@@ -643,7 +464,6 @@ const PaymentPage = () => {
                                 </div>
                             </div>
 
-                            {/* Payment Type Selection */}
                             <div className="mt-6 p-4 bg-gray-50 rounded-lg">
                                 <p className="font-medium mb-3">Payment Option</p>
                                 <div className="space-y-2">
@@ -670,18 +490,10 @@ const PaymentPage = () => {
                                         <span>50% Advance - ৳{formatPrice(pricing.partialAmount)}</span>
                                     </label>
                                 </div>
-                                {paymentType === "partial" && (
-                                    <p className="text-sm text-orange-600 mt-2">
-                                        Remaining ৳{formatPrice(pricing.partialAmount)} due before trip
-                                    </p>
-                                )}
                             </div>
 
-                            {/* Coupon Section */}
                             <div className="mt-6">
-                                <h4 className="font-medium mb-3 flex items-center gap-2">
-                                    <span>🎟️</span> Apply Coupon
-                                </h4>
+                                <h4 className="font-medium mb-3">Apply Coupon</h4>
                                 {couponApplied ? (
                                     <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
                                         <div>
@@ -693,7 +505,7 @@ const PaymentPage = () => {
                                             </span>
                                         </div>
                                         <button onClick={removeCoupon} className="text-red-500 hover:text-red-700">
-                                            ✕ Remove
+                                            Remove
                                         </button>
                                     </div>
                                 ) : (
@@ -717,7 +529,6 @@ const PaymentPage = () => {
                                 {couponError && <p className="text-red-500 text-sm mt-2">{couponError}</p>}
                             </div>
 
-                            {/* Loyalty Points Section */}
                             {user && loyaltyPoints >= 50 && (
                                 <div className="mt-6">
                                     <div
@@ -725,16 +536,11 @@ const PaymentPage = () => {
                                             setUseLoyaltyPoints(!useLoyaltyPoints);
                                             if (useLoyaltyPoints) setPointsToUse(0);
                                         }}
-                                        className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all duration-200 ${useLoyaltyPoints
-                                                ? 'border-purple-400 bg-purple-50'
-                                                : 'border-gray-200 bg-gray-50 hover:border-purple-300'
+                                        className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all duration-200 ${useLoyaltyPoints ? "border-green-400 bg-green-50" : "border-gray-200 bg-gray-50 hover:border-green-300"
                                             }`}
                                     >
-                                        <div className="flex items-center gap-2">
-                                            <span>⭐</span>
-                                            <span className="text-sm font-medium text-gray-800">Use Loyalty Points</span>
-                                        </div>
-                                        <span className="text-sm text-purple-600 font-semibold">{loyaltyPoints} pts available</span>
+                                        <span className="text-sm font-medium text-gray-800">Use Loyalty Points</span>
+                                        <span className="text-sm text-green-600 font-semibold">{loyaltyPoints} pts available</span>
                                     </div>
 
                                     {useLoyaltyPoints && (
@@ -743,74 +549,27 @@ const PaymentPage = () => {
                                                 type="number"
                                                 min={50}
                                                 max={Math.min(loyaltyPoints, Math.floor(pricing.subtotal))}
-                                                value={pointsToUse || ''}
+                                                value={pointsToUse || ""}
                                                 onChange={(e) => {
-                                                    const val = parseInt(e.target.value) || 0;
+                                                    const val = parseInt(e.target.value, 10) || 0;
                                                     setPointsToUse(Math.min(val, loyaltyPoints, Math.floor(pricing.subtotal)));
                                                 }}
                                                 placeholder={`Enter points (min 50, max ${Math.min(loyaltyPoints, Math.floor(pricing.subtotal))})`}
-                                                className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
-                                                autoFocus
+                                                className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
                                             />
-                                            <span className="text-sm text-gray-500">=</span>
                                             <span className="text-sm font-bold text-green-600 whitespace-nowrap">৳{pointsToUse || 0} off</span>
                                         </div>
                                     )}
                                 </div>
                             )}
 
-                            {/* bKash Payment */}
-                            <div className="mt-6">
-                                <h4 className="font-medium mb-3 flex items-center gap-2">
-                                    <img src="https://www.logo.wine/a/logo/BKash/BKash-Icon-Logo.wine.svg" alt="bKash" className="w-8 h-8" />
-                                    Pay with bKash
-                                </h4>
-
-                                <div className="space-y-4">
-                                    {/* bKash Number */}
-                                    <div>
-                                        <label className="block text-sm mb-2">bKash Account Number</label>
-                                        <input
-                                            type="tel"
-                                            placeholder="01XXXXXXXXX"
-                                            value={bkashNumber}
-                                            onChange={(e) => setBkashNumber(e.target.value.replace(/\D/g, "").slice(0, 11))}
-                                            disabled={paymentStep > 1}
-                                            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 disabled:bg-gray-100"
-                                        />
-                                    </div>
-
-                                    {/* Send OTP Button */}
-                                    {paymentStep === 1 && (
-                                        <button
-                                            onClick={sendBkashOtp}
-                                            className="w-full py-3 bg-pink-600 text-white font-bold rounded-lg hover:bg-pink-700 transition"
-                                        >
-                                            Send OTP
-                                        </button>
-                                    )}
-
-                                    {/* OTP Input */}
-                                    {paymentStep >= 2 && (
-                                        <div>
-                                            <label className="block text-sm mb-2">Enter OTP</label>
-                                            <input
-                                                type="text"
-                                                placeholder="6-digit OTP"
-                                                value={bkashOtp}
-                                                onChange={(e) => setBkashOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                                                disabled={paymentStep === 3}
-                                                className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 disabled:bg-gray-100"
-                                            />
-                                            <p className="text-sm text-gray-500 mt-1">
-                                                OTP sent to {bkashNumber}. <button onClick={() => setPaymentStep(1)} className="text-pink-600 underline">Change number</button>
-                                            </p>
-                                        </div>
-                                    )}
-                                </div>
+                            <div className="mt-6 p-4 border border-[#c7e3dd] bg-[#f2fbf9] rounded-lg">
+                                <h4 className="font-medium text-[#034D41] mb-1">Pay with SSLCommerz</h4>
+                                <p className="text-sm text-gray-600">
+                                    You will be redirected to SSLCommerz secure checkout to complete the payment.
+                                </p>
                             </div>
 
-                            {/* Terms & Conditions */}
                             <div className="mt-6">
                                 <label className="flex items-start gap-3 cursor-pointer">
                                     <input
@@ -821,40 +580,33 @@ const PaymentPage = () => {
                                     />
                                     <span className="text-sm text-gray-600">
                                         I agree to the{" "}
-                                        <a href="/terms" target="_blank" className="text-[#034D41] underline">
+                                        <a href="/terms" target="_blank" className="text-[#034D41] underline" rel="noreferrer">
                                             Terms & Conditions
                                         </a>{" "}
                                         and{" "}
-                                        <a href="/privacy" target="_blank" className="text-[#034D41] underline">
+                                        <a href="/privacy" target="_blank" className="text-[#034D41] underline" rel="noreferrer">
                                             Privacy Policy
                                         </a>
                                     </span>
                                 </label>
                             </div>
 
-                            {/* Pay Now Button */}
+                            {paymentError && <p className="mt-4 text-sm text-red-600">{paymentError}</p>}
+
                             <button
-                                onClick={processPayment}
-                                disabled={processing || !agreeTerms || paymentStep < 2}
+                                onClick={handleProceedToPayment}
+                                disabled={processing || !agreeTerms}
                                 className="w-full mt-6 py-4 bg-[#034D41] text-white font-bold text-lg rounded-lg hover:bg-[#023830] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
                                 {processing ? (
                                     <>
                                         <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
-                                        Processing...
+                                        Redirecting to SSLCommerz...
                                     </>
                                 ) : (
-                                    <>
-                                        🔒 Pay ৳{formatPrice(pricing.payableAmount)}
-                                    </>
+                                    <>Pay ৳{formatPrice(pricing.payableAmount)}</>
                                 )}
                             </button>
-
-                            {/* Security Badge */}
-                            <div className="mt-4 flex items-center justify-center gap-2 text-sm text-gray-500">
-                                <span>🔐</span>
-                                <span>Secure Payment • SSL Encrypted</span>
-                            </div>
                         </div>
                     </div>
                 </div>
