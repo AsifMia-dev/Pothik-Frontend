@@ -311,7 +311,7 @@ const PaymentPage = () => {
                                 <img
                                     src={
                                         packageInfo.image
-                                            ? `http://localhost:5000/uploads/${packageInfo.image}`
+                                            ? `http://pothik-backend.onrender.com/uploads/${packageInfo.image}`
                                             : "https://via.placeholder.com/600x300?text=No+Image"
                                     }
                                     alt={packageInfo.name}
