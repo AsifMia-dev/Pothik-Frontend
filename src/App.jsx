@@ -11,7 +11,6 @@ import 'primeicons/primeicons.css';
 
 import Homepage from './pages/Homepage';
 import Footer  from './components/Layout-componets/Footer';
-console.log(import.meta.env.VITE_POTHIK_BACKEND_URL);
 function App() {
   return (
     <PrimeReactProvider>
