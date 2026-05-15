@@ -9,6 +9,10 @@ const menuItems = [
     { id: 'loyalty',   label: 'Loyalty Points', icon: 'pi-star',   path: '/user/loyalty-points' },
     { id: 'listings',  label: 'My Listings',    icon: 'pi-list',   path: '/user/my-listings' },
     { id: 'payouts',   label: 'Payouts',        icon: 'pi-wallet', path: '/user/payouts' },
+    { id: 'blog',      label: 'My Blog Posts',  icon: 'pi-pencil', path: '/user/blog-post' },
+    { id: 'reviews',   label: 'My Reviews',     icon: 'pi-comments', path: '/user/my-reviews' },
+    { id: 'custom',  label: 'My Custom packages',       icon: 'pi-cog',    path: '/user/settings' },
+
 ];
 
 const UserDashboardLayout = ({ children }) => {
