@@ -23,6 +23,7 @@ import CreatePackage from "../pages/user/CreatePackage";
 import LoyaltyPoints from "../pages/user/LoyaltyPoints";
 import BlogPost from "../pages/user/BlogPost";
 import PaymentPage from "../pages/user/PaymentPage";
+import PaymentStatus from "../pages/user/PaymentStatus";
 import CustomPackage from "../pages/user/CustomPackage";
 import Settings from "../pages/user/Settings";
 import MyListings from "../pages/user/MyListings";
@@ -90,11 +91,11 @@ export const allRoutes = [
     role: "customer"
   },
   {
-  path: "/user/edit-review/:reviewId",
-  element: EditReview,
-  isPrivate: true,
-  role: "customer",
-},
+    path: "/user/edit-review/:reviewId",
+    element: EditReview,
+    isPrivate: true,
+    role: "customer",
+  },
   {
     path: "/user/create-package",
     element: CreatePackage,
@@ -120,8 +121,13 @@ export const allRoutes = [
     role: "customer"
   },
   {
+    path: "/payment/status",
+    element: PaymentStatus,
+    isPrivate: false,
+  },
+  {
     path: "/user/edit-blog/:blogId",
-    element: EditBlog,  
+    element: EditBlog,
     isPrivate: true,
     role: "customer",
   },
