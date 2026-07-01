@@ -19,6 +19,7 @@ const LoyaltyPoints = () => {
   const [sortBy, setSortBy] = useState('newest');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Membership tiers based on total earned points
   const getTier = (points) => {
@@ -35,7 +36,7 @@ const LoyaltyPoints = () => {
 
       try {
         setLoading(true);
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token') || localStorage.getItem('token');
         const headers = { Authorization: `Bearer ${token}` };
 
         // Fetch balance and history in parallel
@@ -72,7 +73,14 @@ const LoyaltyPoints = () => {
     };
 
     fetchLoyaltyData();
-  }, [user?.user_id]);
+  }, [user?.user_id, refreshKey]);
+
+  // Auto-refresh when user switches back to this tab
+  useEffect(() => {
+    const handleFocus = () => setRefreshKey(prev => prev + 1);
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, []);
 
   // Filter transactions based on active tab
   const filteredTransactions = allTransactions.filter(t => {
