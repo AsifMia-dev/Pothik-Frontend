@@ -13,6 +13,8 @@ const Payouts = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 8;
 
+    const [refreshKey, setRefreshKey] = useState(0);
+
     // Fetch user payments via bookings
     useEffect(() => {
         const fetchPayments = async () => {
@@ -89,7 +91,14 @@ const Payouts = () => {
         };
 
         fetchPayments();
-    }, [user?.user_id]);
+    }, [user?.user_id, refreshKey]);
+
+    // Auto-refresh when user switches back to this tab
+    useEffect(() => {
+        const handleFocus = () => setRefreshKey(prev => prev + 1);
+        window.addEventListener('focus', handleFocus);
+        return () => window.removeEventListener('focus', handleFocus);
+    }, []);
 
     // Filter
     const filteredPayments = payments.filter((p) => {
