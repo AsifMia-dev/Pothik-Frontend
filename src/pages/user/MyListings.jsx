@@ -12,6 +12,7 @@ const MyListings = () => {
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('all');
     const [sortBy, setSortBy] = useState('newest');
+    const [refreshKey, setRefreshKey] = useState(0);
 
     // Fetch user bookings
     useEffect(() => {
@@ -54,7 +55,14 @@ const MyListings = () => {
         };
 
         fetchBookings();
-    }, [user?.user_id]);
+    }, [user?.user_id, refreshKey]);
+
+    // Auto-refresh when user switches back to this tab
+    useEffect(() => {
+        const handleFocus = () => setRefreshKey(prev => prev + 1);
+        window.addEventListener('focus', handleFocus);
+        return () => window.removeEventListener('focus', handleFocus);
+    }, []);
 
     // Filter bookings
     const filteredBookings = bookings.filter((b) => {
